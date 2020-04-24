@@ -146,14 +146,4 @@ window.addEventListener('load', async function () {
     await annotateReposWithCommitDates(user.login, repos, log);
     drawGraph(user, repos);
   });
-  // try {
-  //   let repos = await getRepos('krasimir');
-  //   repos = repos.map(r => r.node);
-  //   repos = [repos[0]];
-  //   await annotateReposWithCommitDates('krasimir', repos);
-  //   JSONResponse(repos);
-  // } catch(err) {
-  //   console.error(err);
-  //   return JSONResponse({ err: err.toString() })
-  // }
 });

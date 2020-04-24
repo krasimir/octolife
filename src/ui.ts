@@ -1,3 +1,5 @@
+import graph from './graph';
+
 const $ = (sel:string) => document.querySelector(sel);
 const logs: string[] = [];
 
@@ -69,7 +71,7 @@ function log(str:any, replaceLastLog = false) {
 
 function drawGraph(user: Object, repos: any[]) {
   localStorage.setItem('OCTOLIFE_GH_DATA', JSON.stringify({ user, repos }));
-  console.log(repos);
+  graph(user, repos);
 }
 
 export default function UI() {

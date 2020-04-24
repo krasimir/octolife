@@ -5,7 +5,8 @@
     "plugin:@typescript-eslint/recommended"
   ],
   "globals": {
-    "chrome": true
+    "chrome": true,
+    "d3": true
   },
   "rules": {
     "no-restricted-globals": 0,
