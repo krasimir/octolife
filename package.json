@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "now dev"
+    "dev": "concurrently \"now dev\" \"watchify ./src/app.js -o ./site/public/app.js -v\"",
+    "release": "browserify ./src/app.js -o ./public/app.js && now --prod"
   },
   "repository": {
     "type": "git",
@@ -17,7 +18,10 @@
   },
   "homepage": "https://github.com/krasimir/octolife#readme",
   "dependencies": {
-    "node-fetch": "2.6.0",
-    "url": "0.11.0"
+    "lodash": "4.17.15",
+    "url": "0.11.0",
+    "browserify": "16.5.0",
+    "concurrently": "5.1.0",
+    "watchify": "3.11.1"
   }
 }
