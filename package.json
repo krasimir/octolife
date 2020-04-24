@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/krasimir/octolife#readme",
   "dependencies": {
+    "node-fetch": "2.6.0",
     "url": "0.11.0"
   }
 }
