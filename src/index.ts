@@ -1,7 +1,8 @@
+import UI from './ui';
+
 const { parse } = require('url');
 const get = require('lodash/get');
-const fetch = require('node-fetch');
-const token = require('fs').readFileSync(__dirname + '/token').toString('utf8');
+let token = '';
 
 const endpointGraphQL = 'https://api.github.com/graphql';
 const getHeaders = () => ({
@@ -9,7 +10,7 @@ const getHeaders = () => ({
   Authorization: 'token ' + token
 });
 
-const requestGraphQL = async function(query, customHeaders = {}) {
+const requestGraphQL = async function(query:String, customHeaders = {}) {
   const res = await fetch(endpointGraphQL, {
     headers: Object.assign({}, getHeaders(), customHeaders),
     method: 'POST',
@@ -19,24 +20,17 @@ const requestGraphQL = async function(query, customHeaders = {}) {
   if (!res.ok) {
     throw new Error(res.status + ' ' + res.statusText);
   }
-  console.log(`Rate limit remaining: ${res.headers.get('x-ratelimit-remaining')}`);
+  // console.log(`Rate limit remaining: ${res.headers.get('x-ratelimit-remaining')}`);
   const resultData = await res.json();
 
   if (resultData.errors) {
     console.warn('There are errors while requesting ' + endpointGraphQL);
-    console.warn(resultData.errors.map(({ message }) => message));
+    console.warn(resultData.errors.map(({ message }: { message: string }) => message));
   }
   return resultData;
 };
 
-function JSONResponse(res, data, status = 200) {
-  res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.statusCode = status;
-  res.end(JSON.stringify(data));
-}
-
-const QUERY_GET_REPOS = (query, cursor) => `
+const QUERY_GET_REPOS = (query:string, cursor:string) => `
   query {
     search(query: "${query}", type: REPOSITORY, first: 100${cursor ? `, after: "${cursor}"` : ''}) {
       repositoryCount,
@@ -44,8 +38,7 @@ const QUERY_GET_REPOS = (query, cursor) => `
         cursor,
         node {
           ... on Repository {
-            name,
-            nameWithOwner
+            name
           }
         }
       }
@@ -53,7 +46,7 @@ const QUERY_GET_REPOS = (query, cursor) => `
   }
 `;
 
-const QUERY_GET_COMMITS = (user, repo, cursor) => `
+const QUERY_GET_COMMITS = (user:string, repo:string, cursor: string) => `
   {
     repository(owner: "${user}", name: "${repo}") {
       object(expression: "master") {
@@ -72,12 +65,21 @@ const QUERY_GET_COMMITS = (user, repo, cursor) => `
   }
 `;
 
-async function getRepos(user) {
-  let cursor;
-  let repos = [];
-  const get = async () => {
-    console.log(`Getting repos for ${user} cursor=${cursor}`);
-    const q = QUERY_GET_REPOS(`user:${user}`, cursor);
+const QUERY_USER = `
+  query {
+    viewer {
+      name,
+      login,
+      avatarUrl
+    }
+  }
+`;
+
+async function getRepos(login: string) {
+  let cursor:string;
+  let repos:any[] = [];
+  const get = async function (): Promise<any[]> {
+    const q = QUERY_GET_REPOS(`user:${login}`, cursor);
     const { data } = await requestGraphQL(q);
 
     repos = repos.concat(data.search.edges);
@@ -86,18 +88,16 @@ async function getRepos(user) {
       cursor = repos[repos.length - 1].cursor.replace('==', '');
       return await get();
     }
-    return repos;
+    return repos.map(r => r.node);
   };
 
   return get();
 };
-
-function getRepoCommits(user, repoName) {
+async function getRepoCommits(user:string, repoName:string) {
   let perPage = 100;
-  let cursor;
-  let commits = [];
-  const getCommits = async () => {
-    console.log(`Getting commits for ${user}/${repoName} cursor=${cursor}`);
+  let cursor:string;
+  let commits:any[] = [];
+  const getCommits = async function():Promise<any[]>{
     const q = QUERY_GET_COMMITS(user, repoName, cursor);
     const { data } = await requestGraphQL(q);
 
@@ -113,14 +113,19 @@ function getRepoCommits(user, repoName) {
 
   return getCommits();
 }
+async function getUser() {
+  const { data } = await requestGraphQL(QUERY_USER);
+  return data.viewer;
+}
 
-async function annotateReposWithCommitDates(user, repos) {
+async function annotateReposWithCommitDates(user:string, repos:any[], log:Function) {
   let repoIndex = 0;
   async function annotate() {
     if (repoIndex >= repos.length) {
       return;
     }
     const repo = repos[repoIndex];
+    log(`Getting commits for ${repo.name} ${repoIndex+1}/${repos.length}`, true);
     repo.commits = await getRepoCommits(user, repo.name);
     repoIndex += 1;
     await annotate();
@@ -128,21 +133,27 @@ async function annotateReposWithCommitDates(user, repos) {
   await annotate();
 }
 
-module.exports = async function (req, res) {
-  const { query } = parse(req.url, true);
+window.addEventListener('load', async function () {
+  const { log, renderForm, drawGraph } = UI();
 
-  if (!query.user) {
-    return JSONResponse(res, { error: 'Missing `user` GET param.' }, 400);
-  }
-
-  try {
-    let repos = await getRepos(query.user);
-    repos = repos.map(r => r.node);
-    repos = [repos[0]];
-    await annotateReposWithCommitDates(query.user, repos);
-    JSONResponse(res, repos);
-  } catch(err) {
-    console.error(err);
-    return JSONResponse(res, { err: err.toString() }, 500)
-  }
-}
+  renderForm(async function (t:string) {
+    token = t;
+    log('Getting your profile information');
+    const user = await getUser();
+    log('Getting your repositories.');
+    let repos = await getRepos(user.login);
+    repos = [repos[0], repos[1]]
+    await annotateReposWithCommitDates(user.login, repos, log);
+    drawGraph(user, repos);
+  });
+  // try {
+  //   let repos = await getRepos('krasimir');
+  //   repos = repos.map(r => r.node);
+  //   repos = [repos[0]];
+  //   await annotateReposWithCommitDates('krasimir', repos);
+  //   JSONResponse(repos);
+  // } catch(err) {
+  //   console.error(err);
+  //   return JSONResponse({ err: err.toString() })
+  // }
+});
