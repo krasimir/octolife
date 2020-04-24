@@ -1,0 +1,22 @@
+{
+  "name": "octolife",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "now dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krasimir/octolife.git"
+  },
+  "author": "Krasimir Tsonev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/krasimir/octolife/issues"
+  },
+  "homepage": "https://github.com/krasimir/octolife#readme",
+  "dependencies": {
+    "url": "0.11.0"
+  }
+}
