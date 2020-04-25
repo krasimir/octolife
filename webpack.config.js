@@ -3,7 +3,7 @@ const webpack = require('webpack');
 module.exports = {
   mode: 'development',
   watch: true,
-  entry: ['./src/index.ts'],
+  entry: ['./src/index.js'],
   devtool: 'inline-source-map',
   module: {
     rules: [
@@ -11,14 +11,6 @@ module.exports = {
         test: /\.(js)$/,
         exclude: /node_modules/,
         use: ['babel-loader'],
-      },
-      {
-        test: /\.tsx?$/,
-        use: {
-          loader: 'ts-loader',
-          options: { transpileOnly: true },
-        },
-        exclude: /node_modules/,
       },
     ],
   },
