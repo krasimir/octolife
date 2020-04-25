@@ -136,6 +136,9 @@ function renderReport(user, repos) {
         <h1 class="mt2">Oct<img src="/public/github.png" alt="github" />life</h1>
         <a href="/">New Report</a>
       </header>
+      <section class="user">
+        <h2>${user.name}</h2>
+      </section>
       <div id="graph"></div>
     </div>
   `;

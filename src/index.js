@@ -151,6 +151,11 @@ window.addEventListener('load', async function() {
   const { renderLoader, renderForm, renderReport, renderTokenForm } = UI();
   token = localStorage.getItem('OCTOLIFE_GH_TOKEN');
 
+  const profileNameFromTheURL = parse(window.location.href)
+    .path.replace(/^\//, '')
+    .split('/')
+    .shift();
+
   async function profileNameProvided(profileName) {
     const log = renderLoader();
     log('⌛ Getting profile information ...');
@@ -178,6 +183,8 @@ window.addEventListener('load', async function() {
       token = t;
       renderForm(profileNameProvided);
     });
+  } else if (profileNameFromTheURL !== '') {
+    profileNameProvided(profileNameFromTheURL);
   } else {
     renderForm(profileNameProvided);
   }

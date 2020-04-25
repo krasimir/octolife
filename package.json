@@ -22,6 +22,7 @@
   "dependencies": {
     "lodash": "4.17.15",
     "terser-webpack-plugin": "1.2.3",
+    "url": "0.11.0",
     "webpack": "4.41.6"
   },
   "devDependencies": {
