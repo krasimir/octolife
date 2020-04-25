@@ -129,7 +129,6 @@ async function getUser(profileName) {
   const { data } = await requestGraphQL(QUERY_USER(profileName));
   return get(data, 'search.edges.0.node', null);
 }
-
 async function annotateReposWithCommitDates(user, repos, log) {
   let repoIndex = 0;
   async function annotate() {
@@ -138,7 +137,7 @@ async function annotateReposWithCommitDates(user, repos, log) {
     }
     const repo = repos[repoIndex];
     log(
-      `Getting commits for ${repo.name} ${repoIndex + 1}/${repos.length}`,
+      `⌛ Getting commits ... ${repoIndex + 1} of ${repos.length} repositories`,
       true
     );
     repo.commits = await getRepoCommits(user, repo.name);
@@ -149,7 +148,7 @@ async function annotateReposWithCommitDates(user, repos, log) {
 }
 
 window.addEventListener('load', async function() {
-  const { renderLoader, renderForm, drawGraph, renderTokenForm } = UI();
+  const { renderLoader, renderForm, renderReport, renderTokenForm } = UI();
   token = localStorage.getItem('OCTOLIFE_GH_TOKEN');
 
   async function profileNameProvided(profileName) {
@@ -162,8 +161,14 @@ window.addEventListener('load', async function() {
         `⚠️ There is no user with profile name "${profileName}". Try again.`
       );
     } else {
-      log(`✅ Getting profile information for ${user.name} done.`, true);
-      console.log(user);
+      log(`✅ Profile information.`, true);
+      log(`⌛ Getting ${user.name}'s repositories ...`);
+      const repos = await getRepos(user.login);
+      log(`✅ ${user.name}'s repositories.`, true);
+      log(`⌛ Getting commits ...`);
+      await annotateReposWithCommitDates(user.login, repos, log);
+      log(`✅ Commits.`, true);
+      renderReport(user, repos);
     }
   }
 
@@ -176,14 +181,4 @@ window.addEventListener('load', async function() {
   } else {
     renderForm(profileNameProvided);
   }
-
-  // renderForm(async function(t) {
-  //   token = t;
-  //   log('Getting your profile information');
-  //   const user = await getUser();
-  //   log('Getting your repositories.');
-  //   const repos = await getRepos(user.login);
-  //   await annotateReposWithCommitDates(user.login, repos, log);
-  //   drawGraph(user, repos);
-  // });
 });

@@ -11,6 +11,7 @@ function normalizeDate(str) {
 export default function normalizeData(repos) {
   const normalizedRepos = repos
     .map(repo => {
+      if (repo.commits.length === 0) return false;
       const ranges = [];
       const normalizedDates = repo.commits.reduce((r, d) => {
         const normalizedDate = normalizeDate(d);
@@ -30,7 +31,7 @@ export default function normalizeData(repos) {
       );
 
       commitDates.forEach(d => {
-        if (diffInDays(d, cursor) > 1) {
+        if (diffInDays(d, cursor) > 0) {
           ranges.push({
             timeRange: [normalizeDate(rangeStart), normalizeDate(cursor)],
             val: repo.name,
@@ -40,13 +41,18 @@ export default function normalizeData(repos) {
         cursor = d;
       });
 
+      ranges.push({
+        timeRange: [normalizeDate(rangeStart), normalizeDate(cursor)],
+        val: repo.name,
+      });
+
       return {
         totalNumOfCommits,
         group: repo.name,
         data: [{ label: '', data: ranges }],
       };
     })
+    .filter(v => v)
     .sort((a, b) => b.totalNumOfCommits - a.totalNumOfCommits);
-
   return normalizedRepos;
 }

@@ -1,3 +1,5 @@
+// Lib: https://github.com/vasturiano/timelines-chart
+
 export default function graph(normalizedRepos, repos, domEl) {
   TimelinesChart()(domEl)
     .zScaleLabel('units')

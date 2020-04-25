@@ -21,7 +21,7 @@ function getData() {
 function renderHeader() {
   return `
     <h1 class="mt2">Oct<img src="/public/github.png" alt="github" />life</h1>
-    <h2 class="mt05">An app that shows your (public) life at GitHub</h2>
+    <h2 class="mt05">A page that shows your (public) life at GitHub</h2>
   `;
 }
 
@@ -37,6 +37,8 @@ function renderTokenForm(tokenProvided) {
       </p>
       <hr />
       <p>Octolife is using <a href="https://developer.github.com/v4/" target="_blank">GitHub's API</a> to access profiles. In order to do that it needs an <a href="https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line" target="_blank">access token</a>. There're just too many requests to be made and the no-token access has a low request limit.<br /><br />Once you enter the token for convenience it gets saved in your browser's <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage" target="_blank">localStorage</a> so you can trigger multiple searches. It's important to understand that the token persist only on your machine. The code of this app is open source and available <a href="https://github.com/krasimir/octolife" target="_blank">here</a> in case you want to verify that.</p>
+      <hr />
+      ${renderLocalStorageData()}
     </div>
   `;
   $('#how-to-get-token-link').addEventListener('click', function(e) {
@@ -67,6 +69,7 @@ function renderForm(profileNameProvided, message) {
         <input type="text" placeholder="github profile" id="github-profile"/>
         <span class="mt05 block">Enter a GitHub profile name and hit <em>Enter</em>.</span>
       </p>
+      ${renderLocalStorageData()}
     </div>
   `;
   const input = $('#github-profile');
@@ -80,43 +83,6 @@ function renderForm(profileNameProvided, message) {
       }
     }
   });
-  /*
-  const root = $('#root');
-  const data = getData();
-
-  if (root) {
-    root.innerHTML = `
-      <div>
-        <input type="text" value="${
-          token && token !== 'undefined' && token !== 'null' ? token : ''
-        }">
-        <button id="go">Go</button>
-        ${
-          data
-            ? `<button id="use">use already fetched data for ${data.user.name}</button>`
-            : ''
-        }
-      </div>
-    `;
-  }
-
-  const goButton = $('#go');
-  const useButton = $('#use');
-  if (goButton) {
-    goButton.addEventListener('click', () => {
-      const password = $('[type="text"]');
-      if (password) {
-        localStorage.setItem('OCTOLIFE_GH_TOKEN', String(password.value));
-        renderGraph(password.value);
-      }
-    });
-  }
-  if (useButton) {
-    useButton.addEventListener('click', () => {
-      drawGraph(data.user, data.repos);
-    });
-  }
-  */
 }
 
 function renderLoader() {
@@ -139,30 +105,43 @@ function renderLoader() {
   };
 }
 
-function log(str, replaceLastLog = false) {
-  let logger = $('#logger');
-  if (!logger) {
-    const root = $('#root');
-    root.innerHTML = `
-        <div id="logger"></div>
-      `;
-    logger = $('#logger');
-  }
-  if (!replaceLastLog) {
-    logs.push(str);
-  } else {
-    logs[logs.length - 1] = str;
-  }
-  logger.innerHTML = logs.map(s => `<div>${s}</div>`).join('');
+function renderLocalStorageData() {
+  const data = getData();
+  setTimeout(() => {
+    $('#show-localstorage-data').addEventListener('click', () => {
+      renderReport(data.user, data.repos);
+    });
+    $('#show-demo-data').addEventListener('click', () => {
+      console.log('Not implemented');
+    });
+  }, 20);
+  return `
+    <hr />
+    <p class="mt2">
+      ${
+        data
+          ? `🌟 It looks like you've already did a search here for ${data.user.name}? Click <a href="javascript:void(0)" id="show-localstorage-data">here</a> to see the report again.<br /><br />`
+          : ''
+      }
+      🤔 Wondering how the Octolife report looks like? Click <a href="javascript:void(0)" id="show-demo-data">here</a> to see one.
+    </p>
+  `;
 }
 
-function drawGraph(user, repos) {
-  const root = $('#root');
-
-  root.innerHTML = '<div id="graph"></div>';
-
+function renderReport(user, repos) {
   localStorage.setItem('OCTOLIFE_GH_DATA', JSON.stringify({ user, repos }));
-  graph2(normalizeRepos(repos), repos, $('#graph'));
+  $('#root').innerHTML = `
+    <div class="report">
+      <header>
+        <h1 class="mt2">Oct<img src="/public/github.png" alt="github" />life</h1>
+        <a href="/">New Report</a>
+      </header>
+      <div id="graph"></div>
+    </div>
+  `;
+  if (repos.length > 1) {
+    graph2(normalizeRepos(repos), repos, $('#graph'));
+  }
 }
 
 export default function UI() {
@@ -170,6 +149,6 @@ export default function UI() {
     renderTokenForm,
     renderForm,
     renderLoader,
-    drawGraph,
+    renderReport,
   };
 }
