@@ -1,6 +1,7 @@
 /* eslint-disable no-shadow, @typescript-eslint/no-use-before-define, no-param-reassign */
 import graph from './graph';
 import graph2 from './graph2';
+import normalizeRepos from './data';
 
 const $ = sel => document.querySelector(sel);
 const logs = [];
@@ -60,27 +61,26 @@ function log(str, replaceLastLog = false) {
   let logger = $('#logger');
   if (!logger) {
     const root = $('#root');
-    if (root) {
-      root.innerHTML = `
+    root.innerHTML = `
         <div id="logger"></div>
       `;
-      logger = $('#logger');
-    }
+    logger = $('#logger');
   }
   if (!replaceLastLog) {
     logs.push(str);
   } else {
     logs[logs.length - 1] = str;
   }
-  if (logger) {
-    logger.innerHTML = logs.map(s => `<div>${s}</div>`).join('');
-  }
+  logger.innerHTML = logs.map(s => `<div>${s}</div>`).join('');
 }
 
 function drawGraph(user, repos) {
+  const root = $('#root');
+
+  root.innerHTML = '<div id="graph"></div>';
+
   localStorage.setItem('OCTOLIFE_GH_DATA', JSON.stringify({ user, repos }));
-  // graph(user, repos);
-  graph2(user, repos);
+  graph2(normalizeRepos(repos), repos, $('#graph'));
 }
 
 export default function UI() {
