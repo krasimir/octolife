@@ -146,9 +146,14 @@ export default function graph(user, repos) {
 
   const series = repos.map(repo => {
     const { name } = repo;
-    const values = dates.map(dateStr =>
-      repo.values[dateStr] ? repo.values[dateStr] : 0
-    );
+    let pulse = 0;
+    const values = dates.map(dateStr => {
+      const commitsOnThatDay = repo.values[dateStr] ? repo.values[dateStr] : 0;
+      if (commitsOnThatDay === 0) {
+        return (pulse = pulse - 1 < 0 ? 0 : pulse - 1);
+      }
+      return (pulse += 1);
+    });
     return { name, values };
   });
 
