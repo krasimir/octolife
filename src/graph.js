@@ -117,7 +117,8 @@ function chart(data) {
 
 function normalizeDate(str) {
   const d = new Date(str);
-  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+  // return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+  return `${d.getFullYear()}-${d.getMonth() + 1}`;
 }
 
 export default function graph(user, repos) {

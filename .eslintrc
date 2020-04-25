@@ -6,7 +6,8 @@
   ],
   "globals": {
     "chrome": true,
-    "d3": true
+    "d3": true,
+    "TimelinesChart": true
   },
   "rules": {
     "no-restricted-globals": 0,

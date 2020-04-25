@@ -1,5 +1,6 @@
 /* eslint-disable no-shadow, @typescript-eslint/no-use-before-define, no-param-reassign */
 import graph from './graph';
+import graph2 from './graph2';
 
 const $ = sel => document.querySelector(sel);
 const logs = [];
@@ -78,7 +79,8 @@ function log(str, replaceLastLog = false) {
 
 function drawGraph(user, repos) {
   localStorage.setItem('OCTOLIFE_GH_DATA', JSON.stringify({ user, repos }));
-  graph(user, repos);
+  // graph(user, repos);
+  graph2(user, repos);
 }
 
 export default function UI() {
