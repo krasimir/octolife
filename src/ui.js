@@ -27,7 +27,7 @@ function renderHeader() {
 
 function renderTokenForm(tokenProvided) {
   $('#root').innerHTML = `
-    <div class="token-form">
+    <div class="form">
       ${renderHeader()}
       <hr />
       <p class="mt2">
@@ -57,11 +57,12 @@ function renderTokenForm(tokenProvided) {
   });
 }
 
-function renderForm(profileNameProvided) {
+function renderForm(profileNameProvided, message) {
   $('#root').innerHTML = `
     <div class="form">
       ${renderHeader()}
       <hr />
+      ${message ? `<p class="mt2">${message}</p>` : ''}
       <p class="mt2">
         <input type="text" placeholder="github profile" id="github-profile"/>
         <span class="mt05 block">Enter a GitHub profile name and hit <em>Enter</em>.</span>
@@ -120,26 +121,23 @@ function renderForm(profileNameProvided) {
 
 function renderLoader() {
   $('#root').innerHTML = `
-    <div class="token-form">
+    <div class="form">
       ${renderHeader()}
       <hr />
-      <p class="mt2">
-        <input type="text" placeholder="github profile" id="github-profile"/>
-        <span class="mt05 block">Enter a GitHub profile name and hit <em>Enter</em>.</span>
-      </p>
+      <p class="mt2" id="loader-content"></p>
     </div>
   `;
-  const input = $('#github-profile');
-  input.addEventListener('keyup', function(e) {
-    if (e.keyCode === 13) {
-      const token = input.value;
-      if (token === '') {
-        input.style['outline-color'] = 'red';
-      } else {
-        profileNameProvided(token);
-      }
+  const content = $('#loader-content');
+  const logs = [];
+  return (str, replaceLastLog = false) => {
+    if (!replaceLastLog) {
+      logs.push(str);
+    } else {
+      logs[logs.length - 1] = str;
     }
-  });
+    content.innerHTML = logs.map(s => `<div>${s}</div>`).join('');
+  };
+}
 
 function log(str, replaceLastLog = false) {
   let logger = $('#logger');
@@ -171,7 +169,7 @@ export default function UI() {
   return {
     renderTokenForm,
     renderForm,
-    log,
+    renderLoader,
     drawGraph,
   };
 }

@@ -68,12 +68,19 @@ const QUERY_GET_COMMITS = (user, repo, cursor) => `
   }
 `;
 
-const QUERY_USER = `
+const QUERY_USER = user => `
   query {
-    viewer {
-      name,
-      login,
-      avatarUrl
+    search(query: "user:${user}", type: USER, first: 1) {
+      userCount,
+      edges {
+        node {
+          ... on User {
+            name,
+            login,
+            avatarUrl
+          }
+        }
+      }
     }
   }
 `;
@@ -118,9 +125,9 @@ async function getRepoCommits(user, repoName) {
 
   return getCommits();
 }
-async function getUser() {
-  const { data } = await requestGraphQL(QUERY_USER);
-  return data.viewer;
+async function getUser(profileName) {
+  const { data } = await requestGraphQL(QUERY_USER(profileName));
+  return get(data, 'search.edges.0.node', null);
 }
 
 async function annotateReposWithCommitDates(user, repos, log) {
@@ -142,11 +149,22 @@ async function annotateReposWithCommitDates(user, repos, log) {
 }
 
 window.addEventListener('load', async function() {
-  const { log, renderForm, drawGraph, renderTokenForm } = UI();
+  const { renderLoader, renderForm, drawGraph, renderTokenForm } = UI();
   token = localStorage.getItem('OCTOLIFE_GH_TOKEN');
 
-  function profileNameProvided(user) {
-    console.log(user);
+  async function profileNameProvided(profileName) {
+    const log = renderLoader();
+    log('⌛ Getting profile information ...');
+    const user = await getUser(profileName);
+    if (user === null) {
+      renderForm(
+        profileNameProvided,
+        `⚠️ There is no user with profile name "${profileName}". Try again.`
+      );
+    } else {
+      log(`✅ Getting profile information for ${user.name} done.`, true);
+      console.log(user);
+    }
   }
 
   if (!token) {
