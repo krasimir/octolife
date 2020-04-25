@@ -8,59 +8,60 @@ function normalizeDate(str) {
   return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 }
 
-/*
-2008-1-3
-2008-1-4
-2008-1-7
-2008-1-8
-2008-1-10
-*/
-
 export default function graph(user, repos) {
-  // const normalizedRepos = repos.slice(0, 1).map(repo => {
-  const normalizedRepos = repos.map(repo => {
-    const ranges = [];
-    const commitDates = Object.keys(
-      repo.commits.reduce((r, d) => {
+  const normalizedRepos = repos
+    .map(repo => {
+      const ranges = [];
+      const normalizedDates = repo.commits.reduce((r, d) => {
         const normalizedDate = normalizeDate(d);
-        r[normalizedDate] = true;
+        if (!r[normalizedDate]) r[normalizedDate] = 0;
+        r[normalizedDate] += 1;
         return r;
-      }, {})
-    )
-      .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
-      .map(d => new Date(d));
-    let cursor = commitDates.shift();
-    let rangeStart = cursor;
+      }, {});
+      const commitDates = Object.keys(normalizedDates)
+        .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+        .map(d => new Date(d));
+      let cursor = commitDates.shift();
+      let rangeStart = cursor;
 
-    commitDates.forEach(d => {
-      if (diffInDays(d, cursor) > 1) {
-        ranges.push({
-          range: [normalizeDate(rangeStart), normalizeDate(cursor)],
-          diff: diffInDays(cursor, rangeStart),
-        });
-        rangeStart = d;
-      }
-      cursor = d;
-    });
+      const totalNumOfCommits = Object.keys(normalizedDates).reduce(
+        (sum, dateStr) => sum + normalizedDates[dateStr],
+        0
+      );
 
-    return {
-      label: repo.name,
-      data: ranges.map(r => ({ timeRange: r.range, val: `${r.diff} days` })),
-    };
-  });
+      commitDates.forEach(d => {
+        if (diffInDays(d, cursor) > 1) {
+          ranges.push({
+            timeRange: [normalizeDate(rangeStart), normalizeDate(cursor)],
+            val: repo.name,
+          });
+          rangeStart = d;
+        }
+        cursor = d;
+      });
 
-  const graphData = [
-    {
-      group: 'Repos',
-      data: normalizedRepos,
-    },
-  ];
+      return {
+        totalNumOfCommits,
+        group: repo.name,
+        data: [{ label: 'commits', data: ranges }],
+      };
+    })
+    .sort((a, b) => b.totalNumOfCommits - a.totalNumOfCommits);
+
   TimelinesChart()(document.body)
-    .zScaleLabel('My Scale Units')
+    .zScaleLabel('units')
+    .width(window.innerWidth - 100)
     .zQualitative(true)
-    .maxHeight(repos.length * 20)
     .maxLineHeight(20)
-    .data(graphData);
+    .timeFormat('%Y-%m-%d')
+    .maxHeight(repos.length * 24)
+    .zColorScale(
+      d3.scaleOrdinal(
+        repos.map(r => r.name),
+        repos.map(r => `#000`)
+      )
+    )
+    .data(normalizedRepos);
 
   setTimeout(() => {
     document.querySelector('.legend').setAttribute('style', 'display: none');
