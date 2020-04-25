@@ -1,0 +1,78 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  width: 100%;
+  height: 100%;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 20px;
+  line-height: 28px;
+  margin: 0;
+  padding: 0;
+}
+a {
+  color: #36a20d;
+}
+a:hover {
+  color: #7ab80a;
+}
+h1, h2, h3, h4 {
+  margin: 0;
+  padding: 0;
+  font-family: 'Abril Fatface', cursive;
+  text-align: center;
+}
+h1 {
+  font-size: 3em;
+}
+h1 img {
+  width: 42px;
+  height: 42px;
+  display: inline-block;
+  margin: 0 5px;
+  transform: translate(0, 2px);
+}
+hr {
+  margin: 4em auto;
+  border-top: none;
+  border-bottom: dotted 1px #B0B0B0;
+  max-width: 600px;
+}
+p {
+  margin: 0 0 1.4em 0;
+  padding: 0;
+}
+.mt2 {
+  margin-top: 2em;
+}
+.mt1 {
+  margin-top: 1em;
+}
+.mt05 {
+  margin-top: 0.5em;
+}
+.o05 {
+  opacity: 0.5;
+}
+.block {
+  display: block;
+}
+.inline {
+  display: inline-block;
+}
+
+.token-form > p {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 600px;
+}
+.token-form input {
+  display: block;
+  font-size: 1em;
+  padding: 0.4em;
+  border-radius: 4px;
+  width: 100%;
+}
+#how-to-get-token {
+  display: none;
+}

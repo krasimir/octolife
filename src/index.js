@@ -142,15 +142,30 @@ async function annotateReposWithCommitDates(user, repos, log) {
 }
 
 window.addEventListener('load', async function() {
-  const { log, renderForm, drawGraph } = UI();
+  const { log, renderForm, drawGraph, renderTokenForm } = UI();
+  token = localStorage.getItem('OCTOLIFE_GH_TOKEN');
 
-  renderForm(async function(t) {
-    token = t;
-    log('Getting your profile information');
-    const user = await getUser();
-    log('Getting your repositories.');
-    const repos = await getRepos(user.login);
-    await annotateReposWithCommitDates(user.login, repos, log);
-    drawGraph(user, repos);
-  });
+  function profileNameProvided(user) {
+    console.log(user);
+  }
+
+  if (!token) {
+    renderTokenForm(t => {
+      localStorage.setItem('OCTOLIFE_GH_TOKEN', t);
+      token = t;
+      renderForm(profileNameProvided);
+    });
+  } else {
+    renderForm(profileNameProvided);
+  }
+
+  // renderForm(async function(t) {
+  //   token = t;
+  //   log('Getting your profile information');
+  //   const user = await getUser();
+  //   log('Getting your repositories.');
+  //   const repos = await getRepos(user.login);
+  //   await annotateReposWithCommitDates(user.login, repos, log);
+  //   drawGraph(user, repos);
+  // });
 });
