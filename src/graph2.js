@@ -43,7 +43,7 @@ export default function graph(user, repos) {
       return {
         totalNumOfCommits,
         group: repo.name,
-        data: [{ label: 'commits', data: ranges }],
+        data: [{ label: '', data: ranges }],
       };
     })
     .sort((a, b) => b.totalNumOfCommits - a.totalNumOfCommits);
@@ -51,6 +51,8 @@ export default function graph(user, repos) {
   TimelinesChart()(document.body)
     .zScaleLabel('units')
     .width(window.innerWidth - 100)
+    .leftMargin(200)
+    .rightMargin(10)
     .zQualitative(true)
     .maxLineHeight(20)
     .timeFormat('%Y-%m-%d')
