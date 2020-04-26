@@ -23,7 +23,7 @@ const weekDaysMap = [
 function renderHeader() {
   return `
     <h1 class="mt1">Oct<img src="/public/github.png" />life</h1>
-    <h2 class="mt05">A page that shows your (public) life on GitHub</h2>
+    <h2 class="mt05">Your (public) life on GitHub</h2>
   `;
 }
 
