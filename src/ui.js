@@ -33,7 +33,7 @@ function renderTokenRequiredForm(profileNameFromTheURL) {
       ${renderHeader()}
       <hr />
       <p class="mt2">
-        <a href="/octolife-api/token?redirect=/octolife-api/authorized/${profileNameFromTheURL}" class="authorize">Authorize Octolife GitHub App</a> 
+        <a href="/octolife-api/token?redirect=/octolife-api/authorized/${profileNameFromTheURL}" class="authorize">Authorize Octolife GitHub app<br />to see the report</a> 
       </p>
       ${renderLocalStorageData()}
     </div>
