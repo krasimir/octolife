@@ -19,17 +19,16 @@ function renderHeader() {
   `;
 }
 
-function renderTokenForm(tokenProvided) {
+function renderTokenForm(profileNameFromTheURL) {
   $('#root').innerHTML = `
     <div class="form">
       ${renderHeader()}
       <hr />
       <p class="mt2">
-        <a href="/octolife-api/token?redirect=/octolife-api/authorized" class="authorize">Authorize Octolife GitHub application</a> 
+        <a href="/octolife-api/token?redirect=/octolife-api/authorized/${profileNameFromTheURL}" class="authorize">Authorize Octolife GitHub application</a> 
       </p>
       <hr />
-      <p>Octolife is using GitHub's API to access profiles. In order to do that it needs an <a href="https://developer.github.com/v4/guides/forming-calls/#authenticating-with-graphql" target="_blank">access token</a>. There're just too many requests to be made and the no-token access has a request limit.<br /><br />Once you authorize Octolife App and fetch the token it gets saved in your browser's <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage" target="_blank">localStorage</a> so you can trigger multiple searches. The token persist only on your machine.<br /><br /><small>The code of this app is open source and available <a href="https://github.com/krasimir/octolife" target="_blank">here</a> in case you want to verify that.</small></p>
-      <hr />
+      <p class="tac"><small>The code of this app is open source and available <a href="https://github.com/krasimir/octolife" target="_blank">here</a>.</small></p>
       ${renderLocalStorageData()}
     </div>
   `;

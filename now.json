@@ -7,6 +7,7 @@
   ],
   "routes": [
     { "src": "/octolife-api/token", "dest": "/api/token.js" },
+    { "src": "/octolife-api/authorized/(.*)", "dest": "/site/authorized.js" },
     { "src": "/octolife-api/authorized", "dest": "/site/authorized.js" },
     { "src": "/public/(.*)", "dest": "/site/public/$1" },
     { "src": "/(.*)", "dest": "/site/index.js" }

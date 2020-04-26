@@ -31,14 +31,25 @@
       }
       return result;
     }
+    function getGHProfile() {
+      let parts = window.location.href.split('octolife-api/authorized/');
+      if (parts.length === 2) {
+        parts = parts[1].split('?');
+        if (parts.length === 2) {
+          return parts[0] !== '' ? parts[0] : null;
+        }
+      }
+      return null;
+    }
     window.addEventListener('load', () => {
       const token = findGetParameter('t');
+      const profile = getGHProfile();
       if (!token) {
         document.querySelector('body').innerHTML =
           '<p>⚠️ Ops! The authorization failed. Go back to the <a href="/">home page</a>.</p>';
       } else {
         localStorage.setItem('OCTOLIFE_GH_TOKEN', token);
-        window.location.href = '/';
+        window.location.href = `/${profile || ''}`;
       }
     });
   </script>
