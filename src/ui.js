@@ -1,22 +1,10 @@
 /* eslint-disable no-shadow, @typescript-eslint/no-use-before-define, no-param-reassign */
 import graph from './graph';
 import graph2 from './graph2';
-import normalizeRepos from './data';
+import { normalizeData, getLocalData } from './data';
 
 const $ = sel => document.querySelector(sel);
 const logs = [];
-
-function getData() {
-  const data = localStorage.getItem('OCTOLIFE_GH_DATA');
-  if (data) {
-    try {
-      return JSON.parse(data);
-    } catch (err) {
-      return null;
-    }
-  }
-  return null;
-}
 
 function renderHeader() {
   return `
@@ -31,32 +19,14 @@ function renderTokenForm(tokenProvided) {
       ${renderHeader()}
       <hr />
       <p class="mt2">
-        <input type="text" placeholder="enter your access token here and press enter" id="access-token"/>
-        <span class="mt05 block">You don't have a token? Click <a href="javascript:void(0)" id="how-to-get-token-link">here</a> to learn how to generate it.</span>
-        <small class="mt05 inline" id="how-to-get-token"></small>
+        <a href="/octolife-api/token?redirect=/octolife-api/authorized" class="authorize">Authorize Octolife GitHub application</a> 
       </p>
       <hr />
-      <p>Octolife is using <a href="https://developer.github.com/v4/" target="_blank">GitHub's API</a> to access profiles. In order to do that it needs an <a href="https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line" target="_blank">access token</a>. There're just too many requests to be made and the no-token access has a low request limit.<br /><br />Once you enter the token for convenience it gets saved in your browser's <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage" target="_blank">localStorage</a> so you can trigger multiple searches. It's important to understand that the token persist only on your machine. The code of this app is open source and available <a href="https://github.com/krasimir/octolife" target="_blank">here</a> in case you want to verify that.</p>
+      <p>Octolife is using GitHub's API to access profiles. In order to do that it needs an <a href="https://developer.github.com/v4/guides/forming-calls/#authenticating-with-graphql" target="_blank">access token</a>. There're just too many requests to be made and the no-token access has a low request limit.<br /><br />Once you authorize Octolife App and fetch the token it gets saved in your browser's <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage" target="_blank">localStorage</a> so you can trigger multiple searches. The token persist only on your machine.<br /><br /><small>The code of this app is open source and available <a href="https://github.com/krasimir/octolife" target="_blank">here</a> in case you want to verify that.</small></p>
       <hr />
       ${renderLocalStorageData()}
     </div>
   `;
-  $('#how-to-get-token-link').addEventListener('click', function(e) {
-    $('#how-to-get-token').style.display = 'block';
-    $('#how-to-get-token').innerHTML = `
-      Go to <a href="https://github.com/settings/tokens" target="_blank">this page</a> 👉 Click on "Personal access tokens" 👉 Click on "Generate new token" 👉 The name of the token is not important. That's only for your discoverability. You don't need to set any permissions.
-    `;
-  });
-  $('#access-token').addEventListener('keyup', function(e) {
-    if (e.keyCode === 13) {
-      const token = $('#access-token').value;
-      if (token === '') {
-        $('#access-token').style['outline-color'] = 'red';
-      } else {
-        tokenProvided(token);
-      }
-    }
-  });
 }
 
 function renderForm(profileNameProvided, message) {
@@ -106,7 +76,7 @@ function renderLoader() {
 }
 
 function renderLocalStorageData() {
-  const data = getData();
+  const data = getLocalData();
   setTimeout(() => {
     $('#show-localstorage-data').addEventListener('click', () => {
       renderReport(data.user, data.repos);
@@ -130,20 +100,23 @@ function renderLocalStorageData() {
 
 function renderReport(user, repos) {
   localStorage.setItem('OCTOLIFE_GH_DATA', JSON.stringify({ user, repos }));
+  history.pushState({}, `Octolife / ${user.name}`, `/${user.login}`);
   $('#root').innerHTML = `
     <div class="report">
       <header>
-        <h1 class="mt2">Oct<img src="/public/github.png" alt="github" />life</h1>
+        <h1 class="mt2">
+          <a href="/">Oct<img src="/public/github.png" alt="github" />life</a>
+        </h1>
         <a href="/">New Report</a>
       </header>
       <section class="user">
-        <h2>${user.name}</h2>
+        <h2><img src="${user.avatarUrl}" alt="${user.name}"/>${user.name}</h2>
       </section>
       <div id="graph"></div>
     </div>
   `;
   if (repos.length > 1) {
-    graph2(normalizeRepos(repos), repos, $('#graph'));
+    graph2(normalizeData(repos), repos, $('#graph'));
   }
 }
 

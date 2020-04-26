@@ -42,6 +42,9 @@ p {
   margin: 0 0 1.4em 0;
   padding: 0;
 }
+.tac {
+  text-align: center;
+}
 .mt2 {
   margin-top: 2em;
 }
@@ -59,6 +62,30 @@ p {
 }
 .inline {
   display: inline-block;
+}
+.grid3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.authorize {
+  display: block;
+  text-decoration: none;
+  max-width: 350px;
+  margin: 0 auto;
+  color: #fff;
+  background: #58950e;
+  border-radius: 6px;
+  padding: 0.4em;
+  text-align: center;
+  -webkit-box-shadow: 0px 2px 5px -1px rgba(0,0,0,0.75);
+  -moz-box-shadow: 0px 2px 5px -1px rgba(0,0,0,0.75);
+  box-shadow: 0px 2px 5px -1px rgba(0,0,0,0.75);
+  transition: background 200ms ease-out;
+}
+.authorize:hover {
+  color: #fff;
+  background: #284308;
 }
 .form > p {
   margin-left: auto;
@@ -88,11 +115,25 @@ p {
   border-bottom: dotted 1px #999;
   margin-bottom: 1em;
 }
+.report header h1 a {
+  color: #000;
+  text-decoration: none;
+}
 .report .header a {
   display: inline-block;
   margin-left: 0.6em;
 }
+.report .user {
+  padding: 1em;
+}
 .report .user h2 {
+  padding: 0;
+  margin: 0;
   text-align: left;
   display: inline-block;
+}
+.report .user h2 img {
+  width: 30px;
+  display: inline-block;
+  margin-right: 0.2em;
 }

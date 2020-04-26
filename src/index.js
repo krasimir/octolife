@@ -1,7 +1,8 @@
-import UI from './ui';
+import { parse } from 'url';
+import get from 'lodash/get';
+import { getLocalData } from './data';
 
-const { parse } = require('url');
-const get = require('lodash/get');
+import UI from './ui';
 
 let token = '';
 
@@ -12,23 +13,37 @@ const getHeaders = () => ({
 });
 
 const requestGraphQL = async function(query, customHeaders = {}) {
-  const res = await fetch(endpointGraphQL, {
-    headers: Object.assign({}, getHeaders(), customHeaders),
-    method: 'POST',
-    body: JSON.stringify({ query }),
-  });
+  try {
+    const res = await fetch(endpointGraphQL, {
+      headers: Object.assign({}, getHeaders(), customHeaders),
+      method: 'POST',
+      body: JSON.stringify({ query }),
+    });
 
-  if (!res.ok) {
-    throw new Error(`${res.status} ${res.statusText}`);
-  }
-  // console.log(`Rate limit remaining: ${res.headers.get('x-ratelimit-remaining')}`);
-  const resultData = await res.json();
+    if (!res.ok) {
+      throw new Error(`${res.status} ${res.statusText}`);
+    }
+    // console.log(`Rate limit remaining: ${res.headers.get('x-ratelimit-remaining')}`);
+    const resultData = await res.json();
 
-  if (resultData.errors) {
-    console.warn(`There are errors while requesting ${endpointGraphQL}`);
-    console.warn(resultData.errors.map(({ message }) => message));
+    if (resultData.errors) {
+      console.warn(`There are errors while requesting ${endpointGraphQL}`);
+      console.warn(resultData.errors.map(({ message }) => message));
+    }
+    return resultData;
+  } catch (err) {
+    if (err.toString().match(/401 Unauthorized/)) {
+      localStorage.removeItem('OCTOLIFE_GH_TOKEN');
+      window.location.href = '/';
+    } else {
+      document.querySelector('#root').innerHTML = `
+        <div class="form">
+          <h1 class="mt2">Error</h1>
+          <p class="mt2 tac">Please try again in a few minutes.</p>
+        </div>
+      `;
+    }
   }
-  return resultData;
 };
 
 const QUERY_GET_REPOS = (query, cursor) => `
@@ -77,7 +92,16 @@ const QUERY_USER = user => `
           ... on User {
             name,
             login,
-            avatarUrl
+            avatarUrl,
+            pinnedRepositories(first:10) {
+              nodes {
+                name,
+                url,
+                stargazers {
+                  totalCount
+                }
+              }
+            }
           }
         }
       }
@@ -184,8 +208,14 @@ window.addEventListener('load', async function() {
       renderForm(profileNameProvided);
     });
   } else if (profileNameFromTheURL !== '') {
-    profileNameProvided(profileNameFromTheURL);
+    const localData = getLocalData();
+    if (localData && localData.user.login === profileNameFromTheURL) {
+      renderReport(localData.user, localData.repos);
+    } else {
+      profileNameProvided(profileNameFromTheURL);
+    }
   } else {
+    console.log(await getUser('krasimir'));
     renderForm(profileNameProvided);
   }
 });

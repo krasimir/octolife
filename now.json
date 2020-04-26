@@ -2,9 +2,12 @@
   "version": 2,
   "builds": [
     { "src": "site/public/*.*", "use": "@now/static" },
-    { "src": "site/index.js", "use": "@now/node" }
+    { "src": "site/*.js", "use": "@now/node" },
+    { "src": "api/*.*", "use": "@now/node" }
   ],
   "routes": [
+    { "src": "/octolife-api/token", "dest": "/api/token.js" },
+    { "src": "/octolife-api/authorized", "dest": "/site/authorized.js" },
     { "src": "/public/(.*)", "dest": "/site/public/$1" },
     { "src": "/(.*)", "dest": "/site/index.js" }
   ]

@@ -8,7 +8,19 @@ function normalizeDate(str) {
   return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 }
 
-export default function normalizeData(repos) {
+export function getLocalData() {
+  const data = localStorage.getItem('OCTOLIFE_GH_DATA');
+  if (data) {
+    try {
+      return JSON.parse(data);
+    } catch (err) {
+      return null;
+    }
+  }
+  return null;
+}
+
+export function normalizeData(repos) {
   const normalizedRepos = repos
     .map(repo => {
       if (repo.commits.length === 0) return false;
