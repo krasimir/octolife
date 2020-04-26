@@ -56,7 +56,19 @@ const QUERY_GET_REPOS = (query, cursor) => `
         cursor,
         node {
           ... on Repository {
-            name
+            name,
+            stargazers {
+              totalCount
+            },
+            issues(states: OPEN) {
+              totalCount
+            },
+            languages(first:15) {
+              nodes {
+                name,
+                color
+              }
+            }
           }
         }
       }
@@ -217,6 +229,7 @@ window.addEventListener('load', async function() {
       renderForm(profileNameProvided);
     });
   } else if (profileNameFromTheURL !== '') {
+    console.log(await getRepos('azumafuji'));
     const localData = getLocalData();
     if (localData && localData.user.login === profileNameFromTheURL) {
       renderReport(localData.user, localData.repos);

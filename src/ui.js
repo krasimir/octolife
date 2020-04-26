@@ -1,7 +1,8 @@
 /* eslint-disable no-shadow, @typescript-eslint/no-use-before-define, no-param-reassign */
 import graph from './graph';
 import graph2 from './graph2';
-import { normalizeData, getLocalData, diffInDays } from './data';
+import { normalizeData, getLocalData, getTotalNumOfStars } from './data';
+import { diffInDays, formatPlural } from './utils';
 
 const $ = sel => document.querySelector(sel);
 const logs = [];
@@ -104,21 +105,56 @@ function renderReport(user, repos) {
   $('#root').innerHTML = `
     <div class="report">
       <header>
-        <h1 class="mt2">
+        <h1>
           <a href="/">Oct<img src="/public/github.png" alt="github" />life</a>
         </h1>
         <a href="/">New Report</a>
       </header>
-      <section class="user">
+      <section class="user mb2">
         <h2><img src="${user.avatarUrl}" alt="${user.name}"/>${user.name}</h2>
+        <small>${formatPlural(getTotalNumOfStars(repos), 'star')}</small>
       </section>
-      <section class="grid3">
+      <section class="grid2 my2">
         <div>
           <ul>
-            <li><strong>Age: ${Math.ceil(
-              diffInDays(new Date(), new Date(user.createdAt)) / 365
-            )}</strong></li>
+            <li><strong>@GitHub:</strong> <a href="${
+              user.url
+            }" target="_blank">${user.url}</a></li>
+            ${
+              user.websiteUrl
+                ? `<li><strong>@Web:</strong> <a href="${user.websiteUrl}" target="_blank">${user.websiteUrl}</a></li>`
+                : ''
+            }
+            <li><strong>Age:</strong> ${(formatPlural(
+              Math.ceil(diffInDays(new Date(), new Date(user.createdAt)) / 365)
+            ),
+            'year')}</li>
+            ${
+              user.location
+                ? `<li><strong>Location</strong>: ${user.location}</li>`
+                : ''
+            }
+            ${
+              user.company
+                ? `<li><strong>Location</strong>: ${user.company}</li>`
+                : ''
+            }
+            <li><strong>Repositories:</strong> ${repos.length}</li>
+            <li><strong>Followers:</strong> ${user.followers.totalCount}</li>
           </ul>
+        </div>
+        <div>
+          ${user.bio ? `<p>“<em>${user.bio}</em>”</p>` : ''}
+          ${
+            user.pinnedRepositories && user.pinnedRepositories.nodes.length > 0
+              ? `<p>Pins: ${user.pinnedRepositories.nodes
+                  .map(
+                    r =>
+                      `<a href="${r.url}" target="_blank">${r.name}(★${r.stargazers.totalCount})</a>`
+                  )
+                  .join(', ')}</p>`
+              : ''
+          }
         </div>
       </section>
       <div id="graph"></div>

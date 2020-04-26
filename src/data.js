@@ -1,12 +1,9 @@
 /* eslint-disable no-shadow, @typescript-eslint/no-use-before-define, no-param-reassign */
+import { diffInDays } from './utils';
+
 function normalizeDate(str) {
   const d = new Date(str);
   return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-}
-
-export function diffInDays(date1, date2) {
-  const diffTime = Math.abs(date2 - date1);
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
 
 export function getLocalData() {
@@ -19,6 +16,10 @@ export function getLocalData() {
     }
   }
   return null;
+}
+
+export function getTotalNumOfStars(repos) {
+  return repos.reduce((res, repo) => res + repo.stargazers.totalCount, 0);
 }
 
 export function normalizeData(repos) {

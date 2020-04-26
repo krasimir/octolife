@@ -1,5 +1,6 @@
 * {
   box-sizing: border-box;
+  word-break: break-word;
 }
 body {
   width: 100%;
@@ -11,7 +12,7 @@ body {
   padding: 0;
 }
 a {
-  color: #36a20d;
+  color: #184706;
 }
 a:hover {
   color: #7ab80a;
@@ -42,31 +43,47 @@ p {
   margin: 0 0 1.4em 0;
   padding: 0;
 }
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+ul li {
+  margin: 0;
+  padding: 0;
+}
 .tac {
-  text-align: center;
+  text-align: center !important;
 }
 .mt2 {
-  margin-top: 2em;
+  margin-top: 2em !important;
+}
+.mb2 {
+  margin-bottom: 2em !important;
+}
+.my2 {
+  margin-top: 2em !important;
+  margin-bottom: 2em !important;
 }
 .mt1 {
-  margin-top: 1em;
+  margin-top: 1em !important;
 }
 .mt05 {
-  margin-top: 0.5em;
+  margin-top: 0.5em !important;
 }
 .o05 {
-  opacity: 0.5;
+  opacity: 0.5 !important;
 }
 .block {
-  display: block;
+  display: block !important;
 }
 .inline {
-  display: inline-block;
+  display: inline-block !important;
 }
-.grid3 {
-  max-width: 1200px;
+.grid2 {
+  max-width: 800px;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   margin: 0 auto;
 }
 
@@ -134,7 +151,9 @@ p {
 .report .user h2 {
   padding: 0;
   margin: 0;
-  text-emphasis: center;
+  font-size: 3em;
+  text-align: center;
+  line-height: 1em;
 }
 .report .user h2 img {
   display: block;
