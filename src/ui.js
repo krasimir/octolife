@@ -239,11 +239,11 @@ function renderReport(user, repos) {
       <h3 class="mb1">Time</h3>
       <section class="lines">
         <div class="grid2">
-          <div>${Object.keys(weekDays)
+          <div>${weekDaysMap
             .map(day => {
               const perc = ((weekDays[day] / weekDaysTotal) * 100).toFixed(1);
               return `<div class="lang-item">
-                    <span style="background:#333;width:${perc *
+                    <span style="background:#636363;width:${perc *
                       5}px">&nbsp;</span>
                     <small class="o05">${perc}%</small>&nbsp;&nbsp;&nbsp;${day}
                   </div>`;
@@ -254,7 +254,7 @@ function renderReport(user, repos) {
             .map(hour => {
               const perc = ((hours[hour] / hoursTotal) * 100).toFixed(1);
               return `<div class="lang-item">
-                    <span style="background:#333;width:${perc *
+                    <span style="background:#636363;width:${perc *
                       5}px">&nbsp;</span>
                     <small class="o05">${perc}%</small>&nbsp;&nbsp;&nbsp;${formatHour(
                 hour
