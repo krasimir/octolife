@@ -86,6 +86,10 @@ ul li {
   grid-template-columns: 1fr 1fr;
   margin: 0 auto;
 }
+.emoji {
+  display: inline-block;
+  transform: translate(0, 3px);
+}
 
 .authorize {
   display: block;

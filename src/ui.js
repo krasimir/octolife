@@ -1,7 +1,12 @@
 /* eslint-disable no-shadow, @typescript-eslint/no-use-before-define, no-param-reassign */
-import graph from './graph';
-import graph2 from './graph2';
-import { normalizeData, getLocalData, getTotalNumOfStars } from './data';
+import timeline from './timeline';
+import piechart from './piechart';
+import {
+  normalizeData,
+  getLocalData,
+  getTotalNumOfStars,
+  getLanguages,
+} from './data';
 import { diffInDays, formatPlural } from './utils';
 
 const $ = sel => document.querySelector(sel);
@@ -112,7 +117,10 @@ function renderReport(user, repos) {
       </header>
       <section class="user mb2">
         <h2><img src="${user.avatarUrl}" alt="${user.name}"/>${user.name}</h2>
-        <small>${formatPlural(getTotalNumOfStars(repos), 'star')}</small>
+        <p class="tac mt1"><span class="emoji">🌟</span> ${formatPlural(
+          getTotalNumOfStars(repos),
+          'star'
+        )}</p>
       </section>
       <section class="grid2 my2">
         <div>
@@ -125,10 +133,10 @@ function renderReport(user, repos) {
                 ? `<li><strong>@Web:</strong> <a href="${user.websiteUrl}" target="_blank">${user.websiteUrl}</a></li>`
                 : ''
             }
-            <li><strong>Age:</strong> ${(formatPlural(
-              Math.ceil(diffInDays(new Date(), new Date(user.createdAt)) / 365)
-            ),
-            'year')}</li>
+            <li><strong>Age:</strong> ${formatPlural(
+              Math.ceil(diffInDays(new Date(), new Date(user.createdAt)) / 365),
+              'year'
+            )}</li>
             ${
               user.location
                 ? `<li><strong>Location</strong>: ${user.location}</li>`
@@ -157,12 +165,14 @@ function renderReport(user, repos) {
           }
         </div>
       </section>
-      <div id="graph"></div>
+      <div id="piechart"></div>
+      <div id="timeline"></div>
     </div>
   `;
   if (repos.length > 1) {
-    graph2(normalizeData(repos), repos, $('#graph'));
+    timeline(normalizeData(repos), repos, $('#timeline'));
   }
+  piechart(getLanguages(repos), $('#piechart'));
 }
 
 export default function UI() {

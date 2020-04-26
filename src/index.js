@@ -229,7 +229,7 @@ window.addEventListener('load', async function() {
       renderForm(profileNameProvided);
     });
   } else if (profileNameFromTheURL !== '') {
-    console.log(await getRepos('azumafuji'));
+    // console.log(await getRepos('azumafuji'));
     const localData = getLocalData();
     if (localData && localData.user.login === profileNameFromTheURL) {
       renderReport(localData.user, localData.repos);

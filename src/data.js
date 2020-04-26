@@ -22,6 +22,24 @@ export function getTotalNumOfStars(repos) {
   return repos.reduce((res, repo) => res + repo.stargazers.totalCount, 0);
 }
 
+export function getLanguages(repos) {
+  return repos.reduce((res, repo) => {
+    repo.languages.nodes.forEach(lang => {
+      const entry = res.find(e => e.name === lang.name);
+      if (entry) {
+        entry.value += 1;
+      } else {
+        res.push({
+          name: lang.name,
+          color: lang.color,
+          value: 1,
+        });
+      }
+    });
+    return res;
+  }, []);
+}
+
 export function normalizeData(repos) {
   const normalizedRepos = repos
     .map(repo => {
