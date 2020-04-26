@@ -17,16 +17,17 @@ a {
 a:hover {
   color: #7ab80a;
 }
-h1, h2, h3 {
+h1 {
   margin: 0;
   padding: 0;
   font-family: 'Abril Fatface', cursive;
   text-align: center;
 }
-h4 {
+h2, h3, h4 {
   font-family: 'Source Sans Pro', sans-serif;
   margin: 0;
   padding: 0;
+  text-align: center;
 }
 h1 {
   font-size: 5em;
@@ -199,24 +200,27 @@ ul li {
   border-radius: 67% 33% 35% 65% / 38% 30% 70% 62%;
   margin: 0 auto 0.5em auto;
 }
-.languages {
+.lines {
   line-height: 1em;  
 }
-.languages .lang-item {
+.lines .lang-item {
   clear: both;
   height: 25px;
 }
-.languages .lang-item span {
+.lines .lang-item span {
   display: block;
   font-size: 0.7em;
   border-radius: 2px;
   float: left;
   color: #fff
 }
-.languages .lang-item small {
+.lines .lang-item small {
   display: block;
   float: left;
   margin-left: 0.2em;
+}
+.report h3 {
+  font-size: 2em;
 }
 .report select {
   display: block;

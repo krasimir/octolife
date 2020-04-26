@@ -7,15 +7,23 @@ import {
   getTotalNumOfStars,
   getLanguages,
 } from './data';
-import { getAge, formatPlural } from './utils';
+import { getAge, formatPlural, formatHour } from './utils';
 
 const $ = sel => document.querySelector(sel);
-const logs = [];
+const weekDaysMap = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+];
 
 function renderHeader() {
   return `
     <h1 class="mt1">Oct<img src="/public/github.png" />life</h1>
-    <h2 class="mt05">A page that shows your (public) life at GitHub</h2>
+    <h2 class="mt05">A page that shows your (public) life on GitHub</h2>
   `;
 }
 
@@ -129,6 +137,30 @@ function renderReport(user, repos) {
       return res;
     }, [])
     .sort((a, b) => a - b);
+  const weekDays = repos.reduce((res, repo) => {
+    repo.commits.forEach(commit => {
+      const day = weekDaysMap[new Date(commit).getDay()];
+      if (typeof res[day] === 'undefined') res[day] = 0;
+      res[day] += 1;
+    });
+    return res;
+  }, {});
+  const weekDaysTotal = weekDaysMap.reduce(
+    (res, day) => res + (weekDays[day] || 0),
+    0
+  );
+  const hours = repos.reduce((res, repo) => {
+    repo.commits.forEach(commit => {
+      const hour = new Date(commit).getHours();
+      if (typeof res[hour] === 'undefined') res[hour] = 0;
+      res[hour] += 1;
+    });
+    return res;
+  }, {});
+  const hoursTotal = Object.keys(hours).reduce(
+    (res, hour) => res + (hours[hour] || 0),
+    0
+  );
 
   $('#root').innerHTML = `
     <div class="report">
@@ -186,7 +218,7 @@ function renderReport(user, repos) {
         </div>
       </section>
       <hr />
-      <section class="languages">
+      <section class="lines">
         <div class="grid2">
           <div>
             <div id="piechart"></div>
@@ -201,6 +233,36 @@ function renderReport(user, repos) {
                   </div>`;
             })
             .join('')}</div>
+        </div>
+      </section>
+      <hr />
+      <h3 class="mb1">Time</h3>
+      <section class="lines">
+        <div class="grid2">
+          <div>${Object.keys(weekDays)
+            .map(day => {
+              const perc = ((weekDays[day] / weekDaysTotal) * 100).toFixed(1);
+              return `<div class="lang-item">
+                    <span style="background:#333;width:${perc *
+                      5}px">&nbsp;</span>
+                    <small class="o05">${perc}%</small>&nbsp;&nbsp;&nbsp;${day}
+                  </div>`;
+            })
+            .join('')}</div>
+          <div>
+          ${Object.keys(hours)
+            .map(hour => {
+              const perc = ((hours[hour] / hoursTotal) * 100).toFixed(1);
+              return `<div class="lang-item">
+                    <span style="background:#333;width:${perc *
+                      5}px">&nbsp;</span>
+                    <small class="o05">${perc}%</small>&nbsp;&nbsp;&nbsp;${formatHour(
+                hour
+              )}
+                  </div>`;
+            })
+            .join('')}
+          </div>
         </div>
       </section>
       <hr />
