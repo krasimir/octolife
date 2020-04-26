@@ -14,27 +14,25 @@ const logs = [];
 
 function renderHeader() {
   return `
-    <h1 class="mt2">Oct<img src="/public/github.png" alt="github" />life</h1>
+    <h1 class="mt1">Oct<img src="/public/github.png" />life</h1>
     <h2 class="mt05">A page that shows your (public) life at GitHub</h2>
   `;
 }
 
-function renderTokenForm(profileNameFromTheURL) {
+function renderTokenRequiredForm(profileNameFromTheURL) {
   $('#root').innerHTML = `
     <div class="form">
       ${renderHeader()}
       <hr />
       <p class="mt2">
-        <a href="/octolife-api/token?redirect=/octolife-api/authorized/${profileNameFromTheURL}" class="authorize">Authorize Octolife GitHub application</a> 
+        <a href="/octolife-api/token?redirect=/octolife-api/authorized/${profileNameFromTheURL}" class="authorize">Authorize Octolife GitHub App</a> 
       </p>
-      <hr />
-      <p class="tac"><small>The code of this app is open source and available <a href="https://github.com/krasimir/octolife" target="_blank">here</a>.</small></p>
       ${renderLocalStorageData()}
     </div>
   `;
 }
 
-function renderForm(profileNameProvided, message) {
+function renderProfileRequiredForm(profileNameProvided, message) {
   $('#root').innerHTML = `
     <div class="form">
       ${renderHeader()}
@@ -42,7 +40,7 @@ function renderForm(profileNameProvided, message) {
       ${message ? `<p class="mt2">${message}</p>` : ''}
       <p class="mt2">
         <input type="text" placeholder="github profile" id="github-profile"/>
-        <span class="mt05 block">Enter a GitHub profile name and hit <em>Enter</em>.</span>
+        <span class="mt05 block"><small>Enter a GitHub profile name and hit <em>Enter</em>.</small></span>
       </p>
       ${renderLocalStorageData()}
     </div>
@@ -58,6 +56,9 @@ function renderForm(profileNameProvided, message) {
       }
     }
   });
+  setTimeout(() => {
+    input.focus();
+  }, 20);
 }
 
 function renderLoader() {
@@ -83,15 +84,25 @@ function renderLoader() {
 function renderLocalStorageData() {
   const data = getLocalData();
   setTimeout(() => {
-    $('#show-localstorage-data').addEventListener('click', () => {
-      renderReport(data.user, data.repos);
-    });
-    $('#show-demo-data').addEventListener('click', () => {
-      console.log('Not implemented');
+    if ($('#show-localstorage-data')) {
+      $('#show-localstorage-data').addEventListener('click', () => {
+        renderReport(data.user, data.repos);
+      });
+    }
+    const showDemoData = $('#show-demo-data');
+    showDemoData.addEventListener('click', async () => {
+      const newNode = document.createElement('small');
+      newNode.innerHTML = '⏳';
+      showDemoData.parentNode.replaceChild(newNode, showDemoData);
+      try {
+        const demoData = await (await fetch('/public/demo.json')).json();
+        renderReport(demoData.user, demoData.repos);
+      } catch (err) {
+        newNode.innerHTML = 'Ops! Error loading the demo data.';
+      }
     });
   }, 20);
   return `
-    <hr />
     <p class="mt2">
       ${
         data
@@ -103,24 +114,21 @@ function renderLocalStorageData() {
   `;
 }
 
-function renderFooter() {
-  return `
-    <footer class="tac">
-      Octolife
-    </footer>
-  `;
-}
-
 function renderReport(user, repos) {
   localStorage.setItem('OCTOLIFE_GH_DATA', JSON.stringify({ user, repos }));
   history.pushState({}, `Octolife / ${user.name}`, `/${user.login}`);
 
   const languages = getLanguages(repos).sort((a, b) => b.value - a.value);
   const languagesTotal = languages.reduce((res, lang) => res + lang.value, 0);
-  const numberOfCommits = repos.reduce(
-    (res, repo) => res + repo.commits.length,
-    0
-  );
+  const years = repos
+    .reduce((res, repo) => {
+      repo.commits.forEach(commitDate => {
+        const year = new Date(commitDate).getFullYear();
+        if (!res.includes(year)) res.push(year);
+      });
+      return res;
+    }, [])
+    .sort((a, b) => a - b);
 
   $('#root').innerHTML = `
     <div class="report">
@@ -128,9 +136,9 @@ function renderReport(user, repos) {
         <h1>
           <a href="/">Oct<img src="/public/github.png" alt="github" />life</a>
         </h1>
-        <a href="/">New Report</a>
+        <a href="/" class="block right">New Report</a>
       </header>
-      <section class="user mb2">
+      <section class="user mb2 clear">
         <h2><img src="${user.avatarUrl}" alt="${user.name}"/>${user.name}</h2>
         <p class="tac mt1"><span class="emoji">🌟</span> ${formatPlural(
           getTotalNumOfStars(repos),
@@ -160,7 +168,6 @@ function renderReport(user, repos) {
                 : ''
             }
             <li><strong>Repositories:</strong> ${repos.length}</li>
-            <li><strong>Commits:</strong> ${numberOfCommits}</li>
             <li><strong>Followers:</strong> ${user.followers.totalCount}</li>
           </ul>
         </div>
@@ -198,6 +205,17 @@ function renderReport(user, repos) {
       </section>
       <hr />
       <h3>Timeline (commit history)</h3>
+      <div class="my1">
+        <select id="timeline-mode">
+          <option value="all">All data</option>
+          ${years
+            .map(year => `<option value="year${year}">${year}</option>`)
+            .join('')}
+          ${languages
+            .map(l => `<option value="language_${l.name}">${l.name}</option>`)
+            .join('')}
+        </select>
+      </div>
       <div id="timeline"></div>
       <hr />
       <h3>Repositories</h3>
@@ -206,10 +224,10 @@ function renderReport(user, repos) {
           .sort((a, b) => b.stargazers.totalCount - a.stargazers.totalCount)
           .map(repo => {
             const props = [
-              `${repo.stargazers.totalCount} stars`,
-              `${getAge(repo.createdAt)} old`,
-              `${repo.commits.length} commits`,
-              `${(repo.diskUsage / 1000).toFixed(2)}MB in size`,
+              `${formatPlural(repo.stargazers.totalCount, 'star')}`,
+              `${getAge(repo.createdAt)}`,
+              `${formatPlural(repo.commits.length, 'commit')}`,
+              `${(repo.diskUsage / 1000).toFixed(2)}MB`,
             ];
             const url = `https://github.com/${user.login}/${repo.name}`;
             return `
@@ -218,7 +236,10 @@ function renderReport(user, repos) {
                 <h4>
                 <a href="${url}" target="_blank">${repo.name}</a>
                 </h4>
-                <small>${props.join(', ')}</small>
+                <small>${props.join(', ')}</small><br />
+                <small>Languages: ${repo.languages.nodes
+                  .map(l => l.name)
+                  .join(',')}</small>
               </div>
               <div>
                 <ul>
@@ -239,20 +260,24 @@ function renderReport(user, repos) {
           })
           .join('')}
       </section>
-      <hr />
-      ${renderFooter()}
     </div>
   `;
   if (repos.length > 1) {
     timeline(normalizeData(repos), repos, $('#timeline'));
+    $('#timeline-mode').addEventListener('change', () => {
+      const mode = $('#timeline-mode').value;
+      timeline(normalizeData(repos, mode), repos, $('#timeline'));
+    });
+  } else {
+    $('#timeline-mode').style.display = 'none';
   }
   piechart(languages, $('#piechart'));
 }
 
 export default function UI() {
   return {
-    renderTokenForm,
-    renderForm,
+    renderTokenRequiredForm,
+    renderProfileRequiredForm,
     renderLoader,
     renderReport,
   };

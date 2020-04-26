@@ -40,10 +40,25 @@ export function getLanguages(repos) {
   }, []);
 }
 
-export function normalizeData(repos) {
+export function normalizeData(repos, mode = 'all') {
+  let filterByYear = null;
+  let filterByLanguage = null;
+
+  if (mode.match(/^year/)) {
+    filterByYear = Number(mode.replace('year', ''));
+  } else if (mode.match(/^language_/)) {
+    filterByLanguage = mode.replace('language_', '');
+  }
+
   const normalizedRepos = repos
     .map(repo => {
       if (repo.commits.length === 0) return false;
+      if (
+        filterByLanguage &&
+        !repo.languages.nodes.find(l => l.name === filterByLanguage)
+      ) {
+        return false;
+      }
       const ranges = [];
       const normalizedDates = repo.commits.reduce((r, d) => {
         const normalizedDate = normalizeDate(d);
@@ -51,12 +66,17 @@ export function normalizeData(repos) {
         r[normalizedDate] += 1;
         return r;
       }, {});
-      const commitDates = Object.keys(normalizedDates)
+      let commitDates = Object.keys(normalizedDates)
         .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
         .map(d => new Date(d));
+
+      if (filterByYear) {
+        commitDates = commitDates.filter(d => d.getFullYear() === filterByYear);
+      }
+      if (commitDates.length === 0) return false;
+
       let cursor = commitDates.shift();
       let rangeStart = cursor;
-
       const totalNumOfCommits = Object.keys(normalizedDates).reduce(
         (sum, dateStr) => sum + normalizedDates[dateStr],
         0

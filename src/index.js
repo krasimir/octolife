@@ -15,7 +15,7 @@ async function getRepos(login) {
   let cursor;
   let repos = [];
   const getRepo = async function() {
-    const q = QUERY_GET_REPOS(`user:${login}`, cursor);
+    const q = QUERY_GET_REPOS(login, cursor);
     const { data } = await requestGraphQL(q);
 
     repos = repos.concat(data.search.edges);
@@ -62,10 +62,8 @@ async function annotateReposWithCommitDates(user, repos, log) {
       return;
     }
     const repo = repos[repoIndex];
-    log(
-      `⌛ Getting commits ... ${repoIndex + 1} of ${repos.length} repositories`,
-      true
-    );
+    const percent = Math.ceil((repoIndex / repos.length) * 100);
+    log(`⌛ Getting commit history (${percent}%)`, true);
     repo.commits = await getRepoCommits(user, repo.name);
     repoIndex += 1;
     await annotate();
@@ -74,7 +72,12 @@ async function annotateReposWithCommitDates(user, repos, log) {
 }
 
 window.addEventListener('load', async function() {
-  const { renderLoader, renderForm, renderReport, renderTokenForm } = UI();
+  const {
+    renderLoader,
+    renderProfileRequiredForm,
+    renderReport,
+    renderTokenRequiredForm,
+  } = UI();
   const token = localStorage.getItem('OCTOLIFE_GH_TOKEN');
   setToken(token);
 
@@ -88,7 +91,7 @@ window.addEventListener('load', async function() {
     log('⌛ Getting profile information ...');
     const user = await getUser(profileName);
     if (user === null) {
-      renderForm(
+      renderProfileRequiredForm(
         profileNameProvided,
         `⚠️ There is no user with profile name "${profileName}". Try again.`
       );
@@ -97,7 +100,7 @@ window.addEventListener('load', async function() {
       log(`⌛ Getting ${user.name}'s repositories ...`);
       const repos = await getRepos(user.login);
       log(`✅ ${user.name}'s repositories.`, true);
-      log(`⌛ Getting commits ...`);
+      log(`⌛ Getting commit history ...`);
       await annotateReposWithCommitDates(user.login, repos, log);
       log(`✅ Commits.`, true);
       renderReport(user, repos);
@@ -105,7 +108,7 @@ window.addEventListener('load', async function() {
   }
 
   if (!token) {
-    renderTokenForm(profileNameFromTheURL);
+    renderTokenRequiredForm(profileNameFromTheURL);
   } else if (profileNameFromTheURL !== '') {
     // console.log(await getRepos('azumafuji'));
     const localData = getLocalData();
@@ -115,6 +118,6 @@ window.addEventListener('load', async function() {
       profileNameProvided(profileNameFromTheURL);
     }
   } else {
-    renderForm(profileNameProvided);
+    renderProfileRequiredForm(profileNameProvided);
   }
 });

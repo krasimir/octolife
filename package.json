@@ -7,7 +7,7 @@
     "build": "webpack --config ./webpack.prod.js --mode production",
     "dev": "concurrently \"now dev\" \"yarn watch\"",
     "watch": "webpack --config ./webpack.config.js --mode development",
-    "release": "yarn build && now --prod"
+    "release": "yarn build && csso site/public/styles.css --output site/public/styles.min.css && now --prod"
   },
   "repository": {
     "type": "git",
@@ -40,6 +40,7 @@
     "babel-jest": "25.1.0",
     "babel-loader": "8.0.4",
     "concurrently": "5.1.0",
+    "csso-cli": "3.0.0",
     "eslint": "5.16.0",
     "eslint-config-airbnb": "17.1.1",
     "eslint-config-prettier": "4.3.0",

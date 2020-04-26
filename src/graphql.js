@@ -41,9 +41,9 @@ export const requestGraphQL = async function(query, customHeaders = {}) {
   }
 };
 
-export const QUERY_GET_REPOS = (query, cursor) => `
+export const QUERY_GET_REPOS = (login, cursor) => `
   query {
-    search(query: "${query}", type: REPOSITORY, first: 100${
+    search(query: "user:${login}", type: REPOSITORY, first: 100${
   cursor ? `, after: "${cursor}"` : ''
 }) {
       repositoryCount,
