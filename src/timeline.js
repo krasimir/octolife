@@ -1,7 +1,15 @@
 // Lib: https://github.com/vasturiano/timelines-chart
+import { formatPlural } from './utils';
 
 export default function graph(normalizedRepos, repos, domEl) {
-  domEl.innerHTML = '';
+  domEl.innerHTML = `
+  <p class="tac m0 o05"><small>${formatPlural(
+    normalizedRepos.length,
+    'repo'
+  )}, ${formatPlural(
+    normalizedRepos.reduce((res, repo) => res + repo.totalNumOfCommits, 0),
+    'commit'
+  )}</small></p>`;
   TimelinesChart()(domEl)
     .zScaleLabel('units')
     .width(window.innerWidth - 100)
