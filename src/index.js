@@ -93,6 +93,15 @@ const QUERY_USER = user => `
             name,
             login,
             avatarUrl,
+            bio,
+            company,
+            createdAt,
+            location,
+            url,
+            websiteUrl,
+            followers {
+              totalCount
+            },
             pinnedRepositories(first:10) {
               nodes {
                 name,
@@ -215,7 +224,6 @@ window.addEventListener('load', async function() {
       profileNameProvided(profileNameFromTheURL);
     }
   } else {
-    console.log(await getUser('krasimir'));
     renderForm(profileNameProvided);
   }
 });

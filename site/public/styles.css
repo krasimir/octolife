@@ -64,8 +64,10 @@ p {
   display: inline-block;
 }
 .grid3 {
+  max-width: 1200px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+  margin: 0 auto;
 }
 
 .authorize {
@@ -102,6 +104,9 @@ p {
 #how-to-get-token {
   display: none;
 }
+
+/* Report */
+
 .report h1 {
   text-align: left;
   margin: 0 0.5em 0 0;
@@ -129,11 +134,12 @@ p {
 .report .user h2 {
   padding: 0;
   margin: 0;
-  text-align: left;
-  display: inline-block;
+  text-emphasis: center;
 }
 .report .user h2 img {
-  width: 30px;
-  display: inline-block;
-  margin-right: 0.2em;
+  display: block;
+  width: 120px;
+  height: 120px;
+  border-radius: 67% 33% 35% 65% / 38% 30% 70% 62%;
+  margin: 0 auto 0.5em auto;
 }

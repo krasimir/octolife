@@ -1,7 +1,7 @@
 /* eslint-disable no-shadow, @typescript-eslint/no-use-before-define, no-param-reassign */
 import graph from './graph';
 import graph2 from './graph2';
-import { normalizeData, getLocalData } from './data';
+import { normalizeData, getLocalData, diffInDays } from './data';
 
 const $ = sel => document.querySelector(sel);
 const logs = [];
@@ -22,7 +22,7 @@ function renderTokenForm(tokenProvided) {
         <a href="/octolife-api/token?redirect=/octolife-api/authorized" class="authorize">Authorize Octolife GitHub application</a> 
       </p>
       <hr />
-      <p>Octolife is using GitHub's API to access profiles. In order to do that it needs an <a href="https://developer.github.com/v4/guides/forming-calls/#authenticating-with-graphql" target="_blank">access token</a>. There're just too many requests to be made and the no-token access has a low request limit.<br /><br />Once you authorize Octolife App and fetch the token it gets saved in your browser's <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage" target="_blank">localStorage</a> so you can trigger multiple searches. The token persist only on your machine.<br /><br /><small>The code of this app is open source and available <a href="https://github.com/krasimir/octolife" target="_blank">here</a> in case you want to verify that.</small></p>
+      <p>Octolife is using GitHub's API to access profiles. In order to do that it needs an <a href="https://developer.github.com/v4/guides/forming-calls/#authenticating-with-graphql" target="_blank">access token</a>. There're just too many requests to be made and the no-token access has a request limit.<br /><br />Once you authorize Octolife App and fetch the token it gets saved in your browser's <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage" target="_blank">localStorage</a> so you can trigger multiple searches. The token persist only on your machine.<br /><br /><small>The code of this app is open source and available <a href="https://github.com/krasimir/octolife" target="_blank">here</a> in case you want to verify that.</small></p>
       <hr />
       ${renderLocalStorageData()}
     </div>
@@ -90,7 +90,7 @@ function renderLocalStorageData() {
     <p class="mt2">
       ${
         data
-          ? `🌟 It looks like you've already did a search here for ${data.user.name}? Click <a href="javascript:void(0)" id="show-localstorage-data">here</a> to see the report again.<br /><br />`
+          ? `🌟 It looks like you've already did a search here for <strong>${data.user.name}</strong>? Click <a href="javascript:void(0)" id="show-localstorage-data">here</a> to see the report again.<br /><br />`
           : ''
       }
       🤔 Wondering how the Octolife report looks like? Click <a href="javascript:void(0)" id="show-demo-data">here</a> to see one.
@@ -111,6 +111,15 @@ function renderReport(user, repos) {
       </header>
       <section class="user">
         <h2><img src="${user.avatarUrl}" alt="${user.name}"/>${user.name}</h2>
+      </section>
+      <section class="grid3">
+        <div>
+          <ul>
+            <li><strong>Age: ${Math.ceil(
+              diffInDays(new Date(), new Date(user.createdAt)) / 365
+            )}</strong></li>
+          </ul>
+        </div>
       </section>
       <div id="graph"></div>
     </div>
