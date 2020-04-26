@@ -17,11 +17,16 @@ a {
 a:hover {
   color: #7ab80a;
 }
-h1, h2, h3, h4 {
+h1, h2, h3 {
   margin: 0;
   padding: 0;
   font-family: 'Abril Fatface', cursive;
   text-align: center;
+}
+h4 {
+  font-family: 'Source Sans Pro', sans-serif;
+  margin: 0;
+  padding: 0;
 }
 h1 {
   font-size: 3em;
@@ -72,6 +77,9 @@ ul li {
 .mt1 {
   margin-top: 1em !important;
 }
+.mb1 {
+  margin-bottom: 1em !important;
+}
 .mt05 {
   margin-top: 0.5em !important;
 }
@@ -89,6 +97,11 @@ ul li {
   display: grid;
   grid-template-columns: 1fr 1fr;
   margin: 0 auto;
+  column-gap: 1em;
+}
+.grid2.bordered {
+  border-top: solid 1px #B0B0B0;
+  padding-top: 1em;
 }
 .emoji {
   display: inline-block;

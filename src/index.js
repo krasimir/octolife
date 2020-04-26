@@ -57,6 +57,11 @@ const QUERY_GET_REPOS = (query, cursor) => `
         node {
           ... on Repository {
             name,
+            createdAt,
+            descriptionHTML,
+            diskUsage,
+            forkCount,
+            homepageUrl,
             stargazers {
               totalCount
             },

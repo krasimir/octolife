@@ -6,3 +6,9 @@ export function formatPlural(value, what) {
   if (value === 1) return `${value} ${what}`;
   return `${value} ${what}s`;
 }
+export function getAge(date) {
+  return formatPlural(
+    Math.ceil(diffInDays(new Date(), new Date(date)) / 365),
+    'year'
+  );
+}

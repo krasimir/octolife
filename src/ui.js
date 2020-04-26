@@ -7,7 +7,7 @@ import {
   getTotalNumOfStars,
   getLanguages,
 } from './data';
-import { diffInDays, formatPlural } from './utils';
+import { getAge, formatPlural } from './utils';
 
 const $ = sel => document.querySelector(sel);
 const logs = [];
@@ -149,10 +149,7 @@ function renderReport(user, repos) {
                 ? `<li><strong>@Web:</strong> <a href="${user.websiteUrl}" target="_blank">${user.websiteUrl}</a></li>`
                 : ''
             }
-            <li><strong>Age:</strong> ${formatPlural(
-              Math.ceil(diffInDays(new Date(), new Date(user.createdAt)) / 365),
-              'year'
-            )}</li>
+            <li><strong>Age:</strong> ${getAge(user.createdAt)}</li>
             ${
               user.location
                 ? `<li><strong>Location</strong>: ${user.location}</li>`
@@ -209,14 +206,39 @@ function renderReport(user, repos) {
         ${repos
           .sort((a, b) => b.stargazers.totalCount - a.stargazers.totalCount)
           .map(repo => {
-            console.log(repo);
+            const props = [
+              `${repo.stargazers.totalCount} stars`,
+              `${getAge(repo.createdAt)} old`,
+              `${repo.commits.length} commits`,
+              `${(repo.diskUsage / 1000).toFixed(2)}MB in size`,
+            ];
+            const url = `https://github.com/${user.login}/${repo.name}`;
             return `
-            <div class="grid2">
-              <div><a href="https://github.com/${user.login}/${repo.name}" target="_blank">${repo.name}</a></div>
-              <div>★${repo.stargazers.totalCount}</div>
+            <div class="grid2 bordered mb1">
+              <div>
+                <h4>
+                <a href="${url}" target="_blank">${repo.name}</a>
+                </h4>
+                <small>${props.join(', ')}</small>
+              </div>
+              <div>
+                <ul>
+                  ${
+                    repo.descriptionHTML
+                      ? `<li><small>${repo.descriptionHTML}</small></li>`
+                      : ''
+                  }
+                  ${
+                    repo.homepageUrl
+                      ? `<li><small><a href="${repo.homepageUrl}" target="_blank">${repo.homepageUrl}</a></small></li>`
+                      : ''
+                  }
+                </ul>
+              </div>
             </div>
           `;
-          })}
+          })
+          .join('')}
       </section>
       <hr />
       ${renderFooter()}
