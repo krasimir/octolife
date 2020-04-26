@@ -104,9 +104,25 @@ function renderLocalStorageData() {
   `;
 }
 
+function renderFooter() {
+  return `
+    <footer class="tac">
+      Octolife
+    </footer>
+  `;
+}
+
 function renderReport(user, repos) {
   localStorage.setItem('OCTOLIFE_GH_DATA', JSON.stringify({ user, repos }));
   history.pushState({}, `Octolife / ${user.name}`, `/${user.login}`);
+
+  const languages = getLanguages(repos).sort((a, b) => b.value - a.value);
+  const languagesTotal = languages.reduce((res, lang) => res + lang.value, 0);
+  const numberOfCommits = repos.reduce(
+    (res, repo) => res + repo.commits.length,
+    0
+  );
+
   $('#root').innerHTML = `
     <div class="report">
       <header>
@@ -122,7 +138,7 @@ function renderReport(user, repos) {
           'star'
         )}</p>
       </section>
-      <section class="grid2 my2">
+      <section class="grid2 mt1">
         <div>
           <ul>
             <li><strong>@GitHub:</strong> <a href="${
@@ -148,6 +164,7 @@ function renderReport(user, repos) {
                 : ''
             }
             <li><strong>Repositories:</strong> ${repos.length}</li>
+            <li><strong>Commits:</strong> ${numberOfCommits}</li>
             <li><strong>Followers:</strong> ${user.followers.totalCount}</li>
           </ul>
         </div>
@@ -165,14 +182,50 @@ function renderReport(user, repos) {
           }
         </div>
       </section>
-      <div id="piechart"></div>
+      <hr />
+      <section class="languages">
+        <div class="grid2">
+          <div>
+            <div id="piechart"></div>
+          </div>
+          <div>${languages
+            .map(lang => {
+              const percent = ((lang.value / languagesTotal) * 100).toFixed(1);
+              return `<div class="lang-item">
+                    <span style="background:${lang.color};width:${percent *
+                5}px">&nbsp;</span>
+                    <small>${percent}% ${lang.name}</small>
+                  </div>`;
+            })
+            .join('')}</div>
+        </div>
+      </section>
+      <hr />
+      <h3>Timeline (commit history)</h3>
       <div id="timeline"></div>
+      <hr />
+      <h3>Repositories</h3>
+      <section class="mt2">
+        ${repos
+          .sort((a, b) => b.stargazers.totalCount - a.stargazers.totalCount)
+          .map(repo => {
+            console.log(repo);
+            return `
+            <div class="grid2">
+              <div><a href="https://github.com/${user.login}/${repo.name}" target="_blank">${repo.name}</a></div>
+              <div>★${repo.stargazers.totalCount}</div>
+            </div>
+          `;
+          })}
+      </section>
+      <hr />
+      ${renderFooter()}
     </div>
   `;
   if (repos.length > 1) {
     timeline(normalizeData(repos), repos, $('#timeline'));
   }
-  piechart(getLanguages(repos), $('#piechart'));
+  piechart(languages, $('#piechart'));
 }
 
 export default function UI() {

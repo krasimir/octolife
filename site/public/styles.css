@@ -34,7 +34,7 @@ h1 img {
   transform: translate(0, 2px);
 }
 hr {
-  margin: 4em auto;
+  margin: 3em auto;
   border-top: none;
   border-bottom: dotted 1px #B0B0B0;
   max-width: 600px;
@@ -64,6 +64,10 @@ ul li {
 .my2 {
   margin-top: 2em !important;
   margin-bottom: 2em !important;
+}
+.my1 {
+  margin-top: 1em !important;
+  margin-bottom: 1em !important;
 }
 .mt1 {
   margin-top: 1em !important;
@@ -165,4 +169,26 @@ ul li {
   height: 120px;
   border-radius: 67% 33% 35% 65% / 38% 30% 70% 62%;
   margin: 0 auto 0.5em auto;
+}
+.languages {
+  line-height: 1em;  
+}
+.languages .lang-item {
+  clear: both;
+  height: 25px;
+}
+.languages .lang-item span {
+  display: block;
+  font-size: 0.7em;
+  border-radius: 2px;
+  float: left;
+  color: #fff
+}
+.languages .lang-item small {
+  display: block;
+  float: left;
+  margin-left: 0.2em;
+}
+footer {
+  margin-bottom: 4em;
 }

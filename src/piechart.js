@@ -7,14 +7,9 @@ export default function piechart(data, domEl) {
 
   const color = d3.scaleOrdinal(d3.schemeCategory10);
 
-  const pie = d3
-    .pie()
-    .value(function(d) {
-      return d.value;
-    })
-    .sort(function(a, b) {
-      return b.value - a.value;
-    });
+  const pie = d3.pie().value(function(d) {
+    return d.value;
+  });
 
   const arc = d3
     .arc()
