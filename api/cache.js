@@ -3,10 +3,13 @@ const { parse } = require('url');
 const request = require('superagent');
 const microCors = require('micro-cors');
 const { json } = require('micro');
+const demo = require('./demo.json');
 const { error, success } = require('./utils');
 
 const cors = microCors({ allowMethods: ['GET', 'POST'] });
-const cache = {};
+const cache = {
+  krasimir: demo,
+};
 
 module.exports = cors(async (req, res) => {
   const { query } = parse(req.url, true);

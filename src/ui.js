@@ -40,8 +40,10 @@ function renderTokenRequiredForm(profileNameFromTheURL) {
       ${renderHeader()}
       <hr />
       <p class="mt2">
-        <a href="/octolife-api/token?redirect=/octolife-api/authorized/${profileNameFromTheURL}" class="authorize">Authorize Octolife GitHub app<br />to see the report</a> 
+        <a href="/octolife-api/token?redirect=/octolife-api/authorized/${profileNameFromTheURL}" class="authorize">Authorize Octolife GitHub app<br />to see the report</a>
       </p>
+      <hr />
+      <p class="tac">📌 Octolife caches your profile for 90 days so other users can see it without authorization.</p>
     </div>
   `;
 }
@@ -54,8 +56,10 @@ function renderProfileRequiredForm(profileNameProvided, message) {
       ${message ? `<p class="mt2">${message}</p>` : ''}
       <p class="mt2">
         <input type="text" placeholder="github profile" id="github-profile"/>
-        <span class="mt05 block"><small>Enter a GitHub profile name and hit <em>Enter</em>.</small></span>
+        <span class="mt05 block o05"><small>Enter a GitHub profile name and hit <em>Enter</em>.</small></span>
       </p>
+      <hr />
+      <p class="tac">🤔 Wonder how an Octolife report looks like? Go check one <a href="/krasimir">here</a>.</p>
     </div>
   `;
   const input = $('#github-profile');
