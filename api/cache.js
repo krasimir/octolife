@@ -4,7 +4,7 @@ const { json } = require('micro');
 const demo = require('./demo.json');
 const { error, success } = require('./utils');
 
-const CACHE_CONTROL = `s-maxage=${60 * 60 * 24 * 90}, stale-while-revalidate`;
+const CACHE_CONTROL = `s-maxage=${60 * 60 * 24 * 90}`;
 
 const cache = {
   krasimir: demo,

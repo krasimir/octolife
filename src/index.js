@@ -11,7 +11,7 @@ import {
 
 import UI from './ui';
 
-const CACHE_CONTROL = `s-maxage=${60 * 60 * 24 * 90}, stale-while-revalidate`;
+const CACHE_CONTROL = `s-maxage=${60 * 60 * 24 * 90}`;
 
 async function getRepos(login) {
   let cursor;
@@ -83,7 +83,10 @@ async function cacheData(user, repos) {
       body: JSON.stringify({ user, repos }),
     });
     console.log(`Cache: ${JSON.stringify(await res.json())}`);
-    // this call is to force Zeit to cache the api call
+    // This call is to force Zeit to cache the api call. That is because
+    // Zeit is not caching lambda responses when we have POST request.
+    // We need a GET request. That's why also api/cache.js has some memory cache.
+    // The data needs to be there in order to get it served back and cached by the CDN.
     getCacheData(user.login);
   } catch (err) {
     console.log(err);
