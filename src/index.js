@@ -10,7 +10,7 @@ import {
 
 import UI from './ui';
 
-const CACHE_CONTROL = `max-age=${60 * 60 * 24 * 90}, stale-while-revalidate`;
+const CACHE_CONTROL = `s-maxage=${60 * 60 * 24 * 90}, stale-while-revalidate`;
 
 async function getRepos(login) {
   let cursor;
