@@ -27,6 +27,19 @@ function renderHeader() {
   `;
 }
 
+function renderLoading() {
+  $('#root').innerHTML = `
+    <div class="form">
+      ${renderHeader()}
+      <hr />
+      <p class="mt2">
+        ⌛ Loading. Please wait.
+      </p>
+      ${renderLocalStorageData()}
+    </div>
+  `;
+}
+
 function renderTokenRequiredForm(profileNameFromTheURL) {
   $('#root').innerHTML = `
     <div class="form">
@@ -98,17 +111,19 @@ function renderLocalStorageData() {
       });
     }
     const showDemoData = $('#show-demo-data');
-    showDemoData.addEventListener('click', async () => {
-      const newNode = document.createElement('small');
-      newNode.innerHTML = '⏳';
-      showDemoData.parentNode.replaceChild(newNode, showDemoData);
-      try {
-        const demoData = await (await fetch('/public/demo.json')).json();
-        renderReport(demoData.user, demoData.repos);
-      } catch (err) {
-        newNode.innerHTML = 'Ops! Error loading the demo data.';
-      }
-    });
+    if (showDemoData) {
+      showDemoData.addEventListener('click', async () => {
+        const newNode = document.createElement('small');
+        newNode.innerHTML = '⏳';
+        showDemoData.parentNode.replaceChild(newNode, showDemoData);
+        try {
+          const demoData = await (await fetch('/public/demo.json')).json();
+          renderReport(demoData.user, demoData.repos);
+        } catch (err) {
+          newNode.innerHTML = 'Ops! Error loading the demo data.';
+        }
+      });
+    }
   }, 20);
   return `
     <p class="mt2">
@@ -338,6 +353,7 @@ function renderReport(user, repos) {
 
 export default function UI() {
   return {
+    renderLoading,
     renderTokenRequiredForm,
     renderProfileRequiredForm,
     renderLoader,

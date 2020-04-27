@@ -6,6 +6,7 @@
     { "src": "api/*.*", "use": "@now/node" }
   ],
   "routes": [
+    { "src": "/octolife-api/cache", "dest": "/api/cache.js" },
     { "src": "/octolife-api/token", "dest": "/api/token.js" },
     { "src": "/octolife-api/authorized/(.*)", "dest": "/site/authorized.js" },
     { "src": "/octolife-api/authorized", "dest": "/site/authorized.js" },

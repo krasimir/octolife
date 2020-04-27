@@ -71,13 +71,51 @@ async function annotateReposWithCommitDates(user, repos, log) {
   await annotate();
 }
 
+async function cacheData(user, repos) {
+  try {
+    const res = await fetch(`/octolife-api/cache?user=${user.login}`, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ user, repos }),
+    });
+    console.log(`Cache: ${JSON.stringify(await res.json())}`);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+async function getCacheData(username) {
+  try {
+    const res = await fetch(`/octolife-api/cache?user=${username}`, {
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const d = await res.json();
+    if (d.data) {
+      return d.data;
+    }
+    return false;
+  } catch (err) {
+    return false;
+  }
+}
+
 window.addEventListener('load', async function() {
   const {
+    renderLoading,
     renderLoader,
     renderProfileRequiredForm,
     renderReport,
     renderTokenRequiredForm,
   } = UI();
+  renderLoading();
+
   const token = localStorage.getItem('OCTOLIFE_GH_TOKEN');
   setToken(token);
 
@@ -103,19 +141,32 @@ window.addEventListener('load', async function() {
       log(`⌛ Getting commit history ...`);
       await annotateReposWithCommitDates(user.login, repos, log);
       log(`✅ Commits.`, true);
+      cacheData(user, repos);
       renderReport(user, repos);
     }
   }
 
   if (!token) {
+    if (profileNameFromTheURL !== '') {
+      const cachedData = await getCacheData(profileNameFromTheURL);
+      if (cacheData && cacheData.user && cacheData.repos) {
+        renderReport(cachedData.user, cachedData.repos);
+        return;
+      }
+    }
     renderTokenRequiredForm(profileNameFromTheURL);
   } else if (profileNameFromTheURL !== '') {
-    // console.log(await getRepos('azumafuji'));
     const localData = getLocalData();
     if (localData && localData.user.login === profileNameFromTheURL) {
+      cacheData(localData.user, localData.repos); // <- delete this
       renderReport(localData.user, localData.repos);
     } else {
-      profileNameProvided(profileNameFromTheURL);
+      const cachedData = await getCacheData(profileNameFromTheURL);
+      if (cacheData && cacheData.user && cacheData.repos) {
+        renderReport(cachedData.user, cachedData.repos);
+      } else {
+        profileNameProvided(profileNameFromTheURL);
+      }
     }
   } else {
     renderProfileRequiredForm(profileNameProvided);
