@@ -1,12 +1,7 @@
 /* eslint-disable no-shadow, @typescript-eslint/no-use-before-define, no-param-reassign */
 import timeline from './timeline';
 import piechart from './piechart';
-import {
-  normalizeData,
-  getLocalData,
-  getTotalNumOfStars,
-  getLanguages,
-} from './data';
+import { normalizeData, getTotalNumOfStars, getLanguages } from './data';
 import { getAge, formatPlural, formatHour } from './utils';
 
 const $ = sel => document.querySelector(sel);
@@ -27,15 +22,14 @@ function renderHeader() {
   `;
 }
 
-function renderLoading() {
+function renderLoading(message) {
   $('#root').innerHTML = `
     <div class="form">
       ${renderHeader()}
       <hr />
       <p class="mt2">
-        ⌛ Loading. Please wait.
+        ${message}
       </p>
-      ${renderLocalStorageData()}
     </div>
   `;
 }
@@ -48,7 +42,6 @@ function renderTokenRequiredForm(profileNameFromTheURL) {
       <p class="mt2">
         <a href="/octolife-api/token?redirect=/octolife-api/authorized/${profileNameFromTheURL}" class="authorize">Authorize Octolife GitHub app<br />to see the report</a> 
       </p>
-      ${renderLocalStorageData()}
     </div>
   `;
 }
@@ -63,7 +56,6 @@ function renderProfileRequiredForm(profileNameProvided, message) {
         <input type="text" placeholder="github profile" id="github-profile"/>
         <span class="mt05 block"><small>Enter a GitHub profile name and hit <em>Enter</em>.</small></span>
       </p>
-      ${renderLocalStorageData()}
     </div>
   `;
   const input = $('#github-profile');
@@ -102,43 +94,7 @@ function renderLoader() {
   };
 }
 
-function renderLocalStorageData() {
-  const data = getLocalData();
-  setTimeout(() => {
-    if ($('#show-localstorage-data')) {
-      $('#show-localstorage-data').addEventListener('click', () => {
-        renderReport(data.user, data.repos);
-      });
-    }
-    const showDemoData = $('#show-demo-data');
-    if (showDemoData) {
-      showDemoData.addEventListener('click', async () => {
-        const newNode = document.createElement('small');
-        newNode.innerHTML = '⏳';
-        showDemoData.parentNode.replaceChild(newNode, showDemoData);
-        try {
-          const demoData = await (await fetch('/public/demo.json')).json();
-          renderReport(demoData.user, demoData.repos);
-        } catch (err) {
-          newNode.innerHTML = 'Ops! Error loading the demo data.';
-        }
-      });
-    }
-  }, 20);
-  return `
-    <p class="mt2">
-      ${
-        data
-          ? `🌟 It looks like you've already did a search here for <strong>${data.user.name}</strong>? Click <a href="javascript:void(0)" id="show-localstorage-data">here</a> to see the report again.<br /><br />`
-          : ''
-      }
-      🤔 Wondering how the Octolife report looks like? Click <a href="javascript:void(0)" id="show-demo-data">here</a> to see one.
-    </p>
-  `;
-}
-
 function renderReport(user, repos) {
-  localStorage.setItem('OCTOLIFE_GH_DATA', JSON.stringify({ user, repos }));
   history.pushState({}, `Octolife / ${user.name}`, `/${user.login}`);
 
   const languages = getLanguages(repos).sort((a, b) => b.value - a.value);

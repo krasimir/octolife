@@ -1,6 +1,5 @@
 import { parse } from 'url';
 import get from 'lodash/get';
-import { getLocalData } from './data';
 import {
   setToken,
   QUERY_GET_REPOS,
@@ -114,16 +113,14 @@ window.addEventListener('load', async function() {
     renderReport,
     renderTokenRequiredForm,
   } = UI();
-  renderLoading();
 
-  const token = localStorage.getItem('OCTOLIFE_GH_TOKEN');
-  setToken(token);
-
-  const profileNameFromTheURL = parse(window.location.href)
-    .path.replace(/^\//, '')
-    .split('/')
-    .shift();
-
+  function useCacheData(cachedData) {
+    if (cachedData && cachedData.user && cachedData.repos) {
+      renderReport(cachedData.user, cachedData.repos);
+      return true;
+    }
+    return false;
+  }
   async function profileNameProvided(profileName) {
     const log = renderLoader();
     log('⌛ Getting profile information ...');
@@ -146,27 +143,28 @@ window.addEventListener('load', async function() {
     }
   }
 
+  renderLoading(`⌛ Loading. Please wait.`);
+
+  const token = localStorage.getItem('OCTOLIFE_GH_TOKEN');
+  setToken(token);
+
+  const profileNameFromTheURL = parse(window.location.href)
+    .path.replace(/^\//, '')
+    .split('/')
+    .shift();
+
   if (!token) {
     if (profileNameFromTheURL !== '') {
       const cachedData = await getCacheData(profileNameFromTheURL);
-      if (cacheData && cacheData.user && cacheData.repos) {
-        renderReport(cachedData.user, cachedData.repos);
+      if (useCacheData(cachedData)) {
         return;
       }
     }
     renderTokenRequiredForm(profileNameFromTheURL);
   } else if (profileNameFromTheURL !== '') {
-    const localData = getLocalData();
-    if (localData && localData.user.login === profileNameFromTheURL) {
-      cacheData(localData.user, localData.repos); // <- delete this
-      renderReport(localData.user, localData.repos);
-    } else {
-      const cachedData = await getCacheData(profileNameFromTheURL);
-      if (cacheData && cacheData.user && cacheData.repos) {
-        renderReport(cachedData.user, cachedData.repos);
-      } else {
-        profileNameProvided(profileNameFromTheURL);
-      }
+    const cachedData = await getCacheData(profileNameFromTheURL);
+    if (!useCacheData(cachedData)) {
+      profileNameProvided(profileNameFromTheURL);
     }
   } else {
     renderProfileRequiredForm(profileNameProvided);
