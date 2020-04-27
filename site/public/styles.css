@@ -106,7 +106,7 @@ ul li {
   display: inline-block !important;
 }
 .grid2 {
-  max-width: 800px;
+  max-width: 940px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   margin: 0 auto;
@@ -116,7 +116,7 @@ ul li {
   border-top: solid 1px #B0B0B0;
   padding-top: 1em;
 }
-@media all and (max-width: 700px) {
+@media all and (max-width: 940px) {
   .grid2 {
     display: block;
   }

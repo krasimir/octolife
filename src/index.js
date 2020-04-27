@@ -93,6 +93,7 @@ async function getCacheData(username) {
       mode: 'cors',
       headers: {
         'Content-Type': 'application/json',
+        'Cache-Control': 'max-age=1296000, stale-while-revalidate', // 1 296 000 = 15 days
       },
     });
     const d = await res.json();
