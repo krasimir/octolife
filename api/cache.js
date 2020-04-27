@@ -1,17 +1,16 @@
 /* eslint-disable camelcase, import/no-dynamic-require  */
 const { parse } = require('url');
-const request = require('superagent');
-const microCors = require('micro-cors');
 const { json } = require('micro');
 const demo = require('./demo.json');
 const { error, success } = require('./utils');
 
-const cors = microCors({ allowMethods: ['GET', 'POST'] });
+const CACHE_CONTROL = `s-maxage=${60 * 60 * 24 * 90}, stale-while-revalidate`;
+
 const cache = {
   krasimir: demo,
 };
 
-module.exports = cors(async (req, res) => {
+module.exports = async (req, res) => {
   const { query } = parse(req.url, true);
   const { user } = query;
 
@@ -31,10 +30,11 @@ module.exports = cors(async (req, res) => {
   }
 
   if (cache[user]) {
+    res.setHeader('Cache-Control', CACHE_CONTROL);
     return success(res, {
       data: cache[user],
       cached: Object.keys(cache),
     });
   }
   return success(res, { error: 'No data' });
-});
+};

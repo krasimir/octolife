@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import { parse } from 'url';
 import get from 'lodash/get';
 import {
@@ -76,13 +77,14 @@ async function cacheData(user, repos) {
   try {
     const res = await fetch(`/octolife-api/cache?user=${user.login}`, {
       method: 'POST',
-      mode: 'cors',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ user, repos }),
     });
     console.log(`Cache: ${JSON.stringify(await res.json())}`);
+    // this call is to force Zeit to cache the api call
+    getCacheData(user.login);
   } catch (err) {
     console.log(err);
   }
@@ -92,7 +94,6 @@ async function getCacheData(username) {
   try {
     const res = await fetch(`/octolife-api/cache?user=${username}`, {
       method: 'GET',
-      mode: 'cors',
       headers: {
         'Content-Type': 'application/json',
         'Cache-Control': CACHE_CONTROL,

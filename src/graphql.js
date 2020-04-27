@@ -113,15 +113,6 @@ export const QUERY_USER = user => `
             websiteUrl,
             followers {
               totalCount
-            },
-            pinnedRepositories(first:10) {
-              nodes {
-                name,
-                url,
-                stargazers {
-                  totalCount
-                }
-              }
             }
           }
         }
