@@ -120,10 +120,13 @@ window.addEventListener('load', async function() {
     renderReport,
     renderTokenRequiredForm,
   } = UI();
-  const profileNameFromTheURL = parse(window.location.href)
+  let profileNameFromTheURL = parse(window.location.href)
     .path.replace(/^\//, '')
     .split('/')
     .shift();
+  if (profileNameFromTheURL.match(/^\?/)) {
+    profileNameFromTheURL = '';
+  }
   const token = localStorage.getItem('OCTOLIFE_GH_TOKEN');
   setToken(token);
 
