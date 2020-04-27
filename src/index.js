@@ -10,6 +10,8 @@ import {
 
 import UI from './ui';
 
+const CACHE_CONTROL = `max-age=${60 * 60 * 24 * 90}, stale-while-revalidate`;
+
 async function getRepos(login) {
   let cursor;
   let repos = [];
@@ -93,7 +95,7 @@ async function getCacheData(username) {
       mode: 'cors',
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'max-age=1296000, stale-while-revalidate', // 1 296 000 = 15 days
+        'Cache-Control': CACHE_CONTROL,
       },
     });
     const d = await res.json();
@@ -114,21 +116,33 @@ window.addEventListener('load', async function() {
     renderReport,
     renderTokenRequiredForm,
   } = UI();
+  const profileNameFromTheURL = parse(window.location.href)
+    .path.replace(/^\//, '')
+    .split('/')
+    .shift();
+  const token = localStorage.getItem('OCTOLIFE_GH_TOKEN');
+  setToken(token);
 
-  function useCacheData(cachedData) {
+  async function useCacheData(profileName) {
+    renderLoading(`⌛ Loading. Please wait.`);
+    const cachedData = await getCacheData(profileName);
     if (cachedData && cachedData.user && cachedData.repos) {
       renderReport(cachedData.user, cachedData.repos);
       return true;
     }
     return false;
   }
-  async function profileNameProvided(profileName) {
+  async function fetchProfile(profileName) {
+    if (!token) {
+      renderTokenRequiredForm(profileName);
+      return;
+    }
     const log = renderLoader();
     log('⌛ Getting profile information ...');
     const user = await getUser(profileName);
     if (user === null) {
       renderProfileRequiredForm(
-        profileNameProvided,
+        fetchProfile,
         `⚠️ There is no user with profile name "${profileName}". Try again.`
       );
     } else {
@@ -144,30 +158,17 @@ window.addEventListener('load', async function() {
     }
   }
 
-  renderLoading(`⌛ Loading. Please wait.`);
-
-  const token = localStorage.getItem('OCTOLIFE_GH_TOKEN');
-  setToken(token);
-
-  const profileNameFromTheURL = parse(window.location.href)
-    .path.replace(/^\//, '')
-    .split('/')
-    .shift();
-
-  if (!token) {
-    if (profileNameFromTheURL !== '') {
-      const cachedData = await getCacheData(profileNameFromTheURL);
-      if (useCacheData(cachedData)) {
+  if (profileNameFromTheURL !== '') {
+    if (await useCacheData(profileNameFromTheURL)) {
+      return;
+    }
+    fetchProfile(profileNameFromTheURL);
+  } else {
+    renderProfileRequiredForm(async profileName => {
+      if (await useCacheData(profileName)) {
         return;
       }
-    }
-    renderTokenRequiredForm(profileNameFromTheURL);
-  } else if (profileNameFromTheURL !== '') {
-    const cachedData = await getCacheData(profileNameFromTheURL);
-    if (!useCacheData(cachedData)) {
-      profileNameProvided(profileNameFromTheURL);
-    }
-  } else {
-    renderProfileRequiredForm(profileNameProvided);
+      fetchProfile(profileName);
+    });
   }
 });
