@@ -39,6 +39,9 @@ h1 img {
   margin: 0 0.1em;
   transform: translate(0, 2px);
 }
+h4 {
+  text-align: left;
+}
 hr {
   margin: 3em auto;
   border-top: none;
