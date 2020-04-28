@@ -32,6 +32,11 @@ h2, h3, h4 {
 h1 {
   font-size: 5em;
 }
+@media all and (max-width: 450px) {
+  h1 {
+    font-size: 3em;
+  }
+}
 h1 img {
   width: 0.8em;
   height: 0.8em;
