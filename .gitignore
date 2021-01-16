@@ -105,3 +105,5 @@ dist
 
 api/config.local.json
 api/config.json
+
+.vercel
